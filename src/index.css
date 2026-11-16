@@ -1,0 +1,333 @@
+@import 'tailwindcss';
+
+/* Phones held sideways: little height, plenty of width. */
+@custom-variant short (@media (max-height: 520px) and (orientation: landscape));
+
+@theme {
+  /* Surfaces: ink-dark room, lit from above. */
+  --color-ink: #08090b;
+  --color-panel: #14151a;
+  --color-panel-2: #1b1c22;
+  --color-cream: #ede6d6;
+  --color-muted: #9c9483;
+  --color-gold: #c9a45c;
+  --color-gold-bright: #e2c27e;
+  --color-heading: #f4eddd;
+  --color-body: #b9b2a3;
+  --color-bar: rgb(12 15 22 / 0.8);
+  /* The gilt button looks the same in both themes. */
+  --color-accent: #c9a45c;
+  --color-accent-hover: #e2c27e;
+  --color-on-accent: #15120b;
+
+  /* Cards: ivory paper, oxblood red, ink black, navy backs with gold lattice. */
+  --color-card-face: #fbf6ea;
+  --color-card-face-2: #f1e9d6;
+  --color-card-edge: rgb(120 96 48 / 0.35);
+  --color-card-red: #a8322a;
+  --color-card-black: #17181c;
+  --color-card-back: #18223a;
+  --color-card-gilt: #c9a45c;
+
+  --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, 'Hiragino Sans', sans-serif;
+  --font-display: 'Cormorant Garamond', 'Hiragino Mincho ProN', 'Yu Mincho', Georgia, serif;
+  --font-card: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+}
+
+:root {
+  color-scheme: dark;
+  /* Card size scales with the viewport: 7 columns + gaps must fit a 360px phone. */
+  --gap: clamp(4px, 1.4vw, 14px);
+  --card-w: clamp(40px, calc((min(100vw, 1024px) - 80px) / 7.6), 104px);
+}
+
+/* Recomputed on every element so a subtree that overrides --card-w gets a matching height. */
+*,
+::before,
+::after {
+  --card-h: calc(var(--card-w) * 1.4);
+}
+
+/*
+ * Light theme: an ivory parlour. Tables stay dark (a lacquered table in a bright room),
+ * so cards and everything drawn on them read the same in both themes.
+ * `data-theme` is set before first paint (index.html); the media query covers no-JS.
+ */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    color-scheme: light;
+    --color-ink: #f3eee3;
+    --color-panel: #fffdf8;
+    --color-panel-2: #f7f2e7;
+    --color-cream: #1c1a16;
+    --color-muted: #6b6354;
+    --color-gold: #8f6c2e;
+    --color-gold-bright: #7a5a22;
+    --color-heading: #17150f;
+    --color-body: #4d473c;
+    --color-bar: rgb(255 253 248 / 0.86);
+    --room-glow: rgb(201 164 92 / 0.18);
+    --room-top: #faf6ee;
+    --table-shadow: 0 24px 50px rgb(60 45 20 / 0.22);
+  }
+}
+:root[data-theme='light'] {
+  color-scheme: light;
+  --color-ink: #f3eee3;
+  --color-panel: #fffdf8;
+  --color-panel-2: #f7f2e7;
+  --color-cream: #1c1a16;
+  --color-muted: #6b6354;
+  --color-gold: #8f6c2e;
+  --color-gold-bright: #7a5a22;
+  --color-heading: #17150f;
+  --color-body: #4d473c;
+  --color-bar: rgb(255 253 248 / 0.86);
+  --room-glow: rgb(201 164 92 / 0.18);
+  --room-top: #faf6ee;
+  --table-shadow: 0 24px 50px rgb(60 45 20 / 0.22);
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+/* Everything on a table (and the dark plates on the home page) keeps the dark palette. */
+.table-surface,
+.keep-dark {
+  --color-cream: #ede6d6;
+  --color-muted: #9c9483;
+  --color-gold: #c9a45c;
+  --color-gold-bright: #e2c27e;
+  --color-heading: #f4eddd;
+  --color-body: #b9b2a3;
+  --color-panel: #14151a;
+  --color-panel-2: #1b1c22;
+  color: var(--color-cream);
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background:
+    radial-gradient(ellipse 900px 640px at 70% -10%, var(--room-glow, rgb(201 164 92 / 0.1)), transparent 65%),
+    radial-gradient(ellipse 1600px 1100px at 50% 20%, var(--room-top, #121318) 0%, var(--color-ink) 100%) fixed;
+  background-color: var(--color-ink);
+  color: var(--color-cream);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: rgb(201 164 92 / 0.35);
+}
+
+/* ── Tables: a lit surface per kind of game ─────────────────────────── */
+.table-surface {
+  box-shadow:
+    inset 0 0 0 1px rgb(201 164 92 / 0.16),
+    inset 0 0 120px rgb(0 0 0 / 0.45),
+    var(--table-shadow, 0 30px 60px rgb(0 0 0 / 0.45));
+}
+.tone-navy {
+  background: radial-gradient(ellipse 70% 65% at 50% 42%, #1e2738 0%, #121824 60%, #0a0d14 100%);
+}
+.tone-ember {
+  background: radial-gradient(ellipse 70% 65% at 50% 42%, #3a2418 0%, #22150e 60%, #120b08 100%);
+}
+.tone-wine {
+  background: radial-gradient(ellipse 70% 65% at 50% 42%, #46202a 0%, #2a0f16 60%, #14070a 100%);
+}
+.tone-forest {
+  background: radial-gradient(ellipse 70% 65% at 50% 42%, #283a33 0%, #17241f 60%, #0b1210 100%);
+}
+
+/* ── Cards ──────────────────────────────────────────────────────────── */
+.card {
+  /* Lets the face switch to its large-index layout when the card is drawn small. */
+  container: card / inline-size;
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.45)) drop-shadow(0 6px 10px rgb(0 0 0 / 0.28));
+}
+.card-preview {
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.45)) drop-shadow(0 6px 10px rgb(0 0 0 / 0.28));
+}
+.card-selected {
+  filter: drop-shadow(0 0 1px var(--color-gold-bright)) drop-shadow(0 0 7px rgb(226 194 126 / 0.85));
+}
+.card-lifted {
+  filter: drop-shadow(0 4px 6px rgb(0 0 0 / 0.35)) drop-shadow(0 22px 26px rgb(0 0 0 / 0.5));
+}
+.card-highlighted {
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.45)) drop-shadow(0 0 6px rgb(226 194 126 / 0.7));
+}
+.card-hint {
+  animation: card-hint 0.9s ease-in-out infinite alternate;
+}
+@keyframes card-hint {
+  from {
+    filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.45)) drop-shadow(0 0 2px rgb(226 194 126 / 0.6));
+  }
+  to {
+    filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.45)) drop-shadow(0 0 12px rgb(226 194 126 / 1));
+  }
+}
+.card-dimmed {
+  /* One filter list: a separate brightness utility would be overridden by .card's drop shadows. */
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.45)) drop-shadow(0 6px 10px rgb(0 0 0 / 0.28)) brightness(0.68) saturate(0.85);
+}
+.cf-compact {
+  display: none;
+}
+@container card (max-width: 54px) {
+  .cf-full {
+    display: none;
+  }
+  .cf-compact {
+    display: inline;
+  }
+}
+.card:focus-visible {
+  outline: 2px solid var(--color-gold-bright);
+  outline-offset: 2px;
+}
+
+.pile-slot {
+  border-radius: calc(var(--card-w) * 0.08);
+  border: 1px solid rgb(201 164 92 / 0.28);
+  background: rgb(0 0 0 / 0.18);
+  color: rgb(201 164 92 / 0.42);
+  font-family: var(--font-card);
+  font-weight: 600;
+  font-size: calc(var(--card-w) * 0.38);
+}
+
+.pile-slot-hot {
+  border-color: rgb(226 194 126 / 0.9);
+  background: rgb(201 164 92 / 0.12);
+}
+
+/* ── Home: featured game beside the fan only when there is room for both ─ */
+@media (min-width: 1100px), (min-width: 700px) and (orientation: landscape) {
+  .hero {
+    grid-template-columns: minmax(280px, 440px) minmax(0, 1fr);
+  }
+}
+
+/* ── Home: horizontally scrolling collection ────────────────────────── */
+.collection-track {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: var(--page-x);
+  padding: 12px var(--page-x) 24px;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 var(--page-x), #000 calc(100% - 64px), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 var(--page-x), #000 calc(100% - 64px), transparent 100%);
+}
+.collection-track::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/*
+ * Two-column board layouts for short landscape screens: the cards stay on the left,
+ * the status and controls move to a column on the right instead of stacking below.
+ */
+@media (max-height: 520px) and (orientation: landscape) {
+  .layout-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 250px);
+    column-gap: 24px;
+    row-gap: 8px;
+    align-items: start;
+  }
+  .layout-split > .area-main {
+    grid-column: 1;
+    grid-row: 1 / span 6;
+  }
+  .layout-split > .area-side {
+    grid-column: 2;
+  }
+}
+
+/* Card sizes for the four-player tables, capped by height so a sideways phone fits. */
+.hand-cards {
+  --card-w: clamp(40px, min(12vw, calc((100dvh - 300px) / 1.4)), 80px);
+}
+/* Sevens: 13 columns across; 4 rows plus the seats and hand must also fit a phone held sideways. */
+.sevens-board {
+  --card-w: clamp(20px, min(calc((min(100vw, 1024px) - 80px) / 13.8), calc((100dvh - 330px) / 5.8)), 56px);
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .sevens-board {
+    --card-w: clamp(20px, min(calc((100vw - 400px) / 13.6), calc((100dvh - 180px) / 5.9)), 44px);
+  }
+}
+.seat-cards {
+  --card-w: clamp(22px, 6vw, 36px);
+}
+.seat-cards-pick {
+  --card-w: clamp(30px, 9vw, 52px);
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .seat-cards {
+    --card-w: 26px;
+  }
+  .seat-cards-pick {
+    --card-w: 40px;
+  }
+}
+.mid-cards {
+  --card-w: clamp(30px, min(10vw, calc((100dvh - 320px) / 1.4)), 64px);
+}
+
+/*
+ * Four-player tables on short landscape screens: opponents across the top, your hand (or the
+ * board) on the left, the play area and messages on the right.
+ */
+@media (max-height: 520px) and (orientation: landscape) {
+  .layout-table {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 260px);
+    column-gap: 16px;
+    row-gap: 6px;
+    align-items: start;
+  }
+  .layout-table > .area-seats {
+    grid-column: 1 / -1;
+  }
+  .layout-table > .area-main {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  /* One wrapper per side: spanning rows here would add empty rows below the hand. */
+  .layout-table > .area-side {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .hand-cards {
+    --card-w: clamp(36px, calc((100dvh - 290px) / 1.4), 60px);
+  }
+}
+
+/* Concentration: 8 columns on phones, 13 on wider screens. */
+.concentration-grid {
+  --card-w: clamp(28px, calc((100vw - 80px) / 8.7), 64px);
+  grid-template-columns: repeat(8, var(--card-w));
+}
+@media (min-width: 720px) {
+  .concentration-grid {
+    /* 13 × 4 grid: also capped by height so it fits a phone held sideways. */
+    --card-w: clamp(28px, min(calc((min(100vw, 1024px) - 140px) / 14), calc((100dvh - 250px) / 6)), 66px);
+    grid-template-columns: repeat(13, var(--card-w));
+  }
+}
