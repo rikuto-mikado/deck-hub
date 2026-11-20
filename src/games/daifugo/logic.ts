@@ -3,7 +3,7 @@ import { createRng, nextSeed, type Rng } from '@/core/deck/rng';
 import { shuffle } from '@/core/deck/shuffle';
 import { SUITS, rankLabel, type Card, type CardId, type StandardCard, type Suit } from '@/core/types/card';
 import { isOn, type GameRules, type RuleOptions } from '@/core/types/game';
-import { pick, readLevel, type CpuLevel } from '../cpuLevel';
+import { drawSeats, personalityOf, pick, readLevel, seatName, tempo, type CpuLevel, type CpuSeat } from '../cpuLevel';
 import { S_EIGHT, S_JACK, S_THREE, S_TWO, includesStrength, shapesOf, strengthOf, type Shape } from './plays';
 
 export const PLAYERS = 4;
@@ -59,6 +59,8 @@ export interface Give {
 }
 
 export interface DaifugoState {
+  /** Named opponents with hidden personalities (seats 1–3). */
+  seats: CpuSeat[];
   rules: DaifugoRules;
   round: number;
   phase: 'exchange' | 'play' | 'roundOver' | 'matchOver';
@@ -92,7 +94,7 @@ export type DaifugoAction =
   | { type: 'give'; by: number; ids: CardId[] }
   | { type: 'nextRound' };
 
-const name = (p: number) => (p === HUMAN ? 'You' : `CPU ${p}`);
+const nm = (s: Pick<DaifugoState, 'seats'>, p: number) => seatName(s.seats, p);
 const verb = (p: number, you: string, they: string) => (p === HUMAN ? you : they);
 
 /** Strength order is reversed by a revolution, and temporarily flipped again by J-back. */
@@ -173,7 +175,7 @@ function clearTrick(s: DaifugoState, leader: number, why: string): DaifugoState 
     jBack: false,
     lock: null,
     turn: lead,
-    log: `${s.log} ${why} ${name(lead)} ${verb(lead, 'lead', 'leads')}.`.trim(),
+    log: `${s.log} ${why} ${nm(s, lead)} ${verb(lead, 'lead', 'leads')}.`.trim(),
   };
 }
 
@@ -212,16 +214,24 @@ function applyMiyakoOchi(s: DaifugoState, finisher: number): DaifugoState {
     hands,
     cleared: [...s.cleared, ...s.hands[prev]!],
     fallen: [...s.fallen, prev],
-    log: `${s.log} Miyako-ochi! ${name(prev)} ${verb(prev, 'fall', 'falls')} to Daihinmin.`,
+    log: `${s.log} Miyako-ochi! ${nm(s, prev)} ${verb(prev, 'fall', 'falls')} to Daihinmin.`,
   };
 }
 
-function deal(rules: DaifugoRules, seed: number, round: number, lastPlaces: number[] | null, points: number[]): DaifugoState {
+function deal(
+  rules: DaifugoRules,
+  seed: number,
+  round: number,
+  lastPlaces: number[] | null,
+  points: number[],
+  seats: CpuSeat[],
+): DaifugoState {
   const rng = createRng(seed);
   const deck = shuffle(createDeck({ jokers: rules.jokers }), rng);
   const hands: Card[][] = Array.from({ length: PLAYERS }, () => []);
   deck.forEach((c, i) => hands[i % PLAYERS]!.push(c));
   let s: DaifugoState = {
+    seats,
     rules,
     round,
     phase: 'play',
@@ -247,12 +257,12 @@ function deal(rules: DaifugoRules, seed: number, round: number, lastPlaces: numb
     return {
       ...s,
       turn: first,
-      log: `Round 1. ${name(first)} ${verb(first, 'have', 'has')} the ♦3 and ${verb(first, 'lead', 'leads')}.`,
+      log: `Round 1. ${nm(s, first)} ${verb(first, 'have', 'has')} the ♦3 and ${verb(first, 'lead', 'leads')}.`,
     };
   }
   // Later rounds: the Daihinmin leads.
   const leader = lastPlaces.indexOf(PLAYERS - 1);
-  s = { ...s, turn: leader, log: `Round ${round}. ${name(leader)} (Daihinmin) ${verb(leader, 'lead', 'leads')}.` };
+  s = { ...s, turn: leader, log: `Round ${round}. ${nm(s, leader)} (Daihinmin) ${verb(leader, 'lead', 'leads')}.` };
   return rules.exchange ? startExchange(s) : s;
 }
 
@@ -278,7 +288,7 @@ function startExchange(s: DaifugoState): DaifugoState {
   next = transfer(next, hinmin, fugo, strongestFirst(next.hands[hinmin]!).slice(0, 1));
   next = {
     ...next,
-    log: `${next.log} ${name(daihinmin)} gave 2 cards to ${name(daifugo)}; ${name(hinmin)} gave 1 to ${name(fugo)}.`,
+    log: `${next.log} ${nm(s, daihinmin)} gave 2 cards to ${nm(s, daifugo)}; ${nm(s, hinmin)} gave 1 to ${nm(s, fugo)}.`,
   };
   return continueExchange({ ...next, phase: 'exchange' }, [
     { from: daifugo, to: daihinmin, count: 2 },
@@ -301,7 +311,7 @@ function continueExchange(s: DaifugoState, gives: Give[]): DaifugoState {
       ...next,
       phase: 'exchange',
       pendingGive: mine,
-      log: `${next.log} Choose ${mine.count} card${mine.count > 1 ? 's' : ''} to give to ${name(mine.to)}.`,
+      log: `${next.log} Choose ${mine.count} card${mine.count > 1 ? 's' : ''} to give to ${nm(s, mine.to)}.`,
     };
   }
   return { ...next, phase: 'play', pendingGive: null };
@@ -341,7 +351,7 @@ function play(s: DaifugoState, by: number, ids: CardId[]): DaifugoState {
     table: { ...shape, cards: played, by },
     cleared: s.table ? [...s.cleared, ...s.table.cards] : s.cleared,
     lock,
-    log: `${name(by)} played ${describe(played)}.`,
+    log: `${nm(s, by)} played ${describe(played)}.`,
   };
 
   const revolution =
@@ -363,10 +373,10 @@ function play(s: DaifugoState, by: number, ids: CardId[]): DaifugoState {
       next = {
         ...next,
         fallen: [...next.fallen, by],
-        log: `${next.log} Forbidden finish — ${name(by)} ${verb(by, 'drop', 'drops')} to the bottom.`,
+        log: `${next.log} Forbidden finish — ${nm(s, by)} ${verb(by, 'drop', 'drops')} to the bottom.`,
       };
     } else {
-      next = { ...next, finished: [...next.finished, by], log: `${next.log} ${name(by)} ${verb(by, 'are', 'is')} out!` };
+      next = { ...next, finished: [...next.finished, by], log: `${next.log} ${nm(s, by)} ${verb(by, 'are', 'is')} out!` };
       next = applyMiyakoOchi(next, by);
     }
     next = endRoundIfDone(next);
@@ -383,7 +393,7 @@ function play(s: DaifugoState, by: number, ids: CardId[]): DaifugoState {
 function reduce(s: DaifugoState, a: DaifugoAction): DaifugoState {
   if (a.type === 'nextRound') {
     if (s.phase !== 'roundOver') return s;
-    return deal(s.rules, s.seed, s.round + 1, s.places, s.points);
+    return deal(s.rules, s.seed, s.round + 1, s.places, s.points, s.seats);
   }
   if (a.type === 'give') {
     const g = s.pendingGive;
@@ -395,14 +405,14 @@ function reduce(s: DaifugoState, a: DaifugoAction): DaifugoState {
       ...next,
       phase: 'play',
       pendingGive: null,
-      log: `You gave ${describe(cards as Card[])} to ${name(g.to)}. ${name(s.turn)} ${verb(s.turn, 'lead', 'leads')}.`,
+      log: `You gave ${describe(cards as Card[])} to ${nm(s, g.to)}. ${nm(s, s.turn)} ${verb(s.turn, 'lead', 'leads')}.`,
     };
   }
   if (s.phase !== 'play' || a.by !== s.turn || isOut(s, a.by)) return s;
   if (a.type === 'play') return play(s, a.by, a.ids);
 
   if (!s.table) return s; // the leader must play
-  const next: DaifugoState = { ...s, passed: s.passed.map((p, i) => p || i === a.by), log: `${name(a.by)} passed.` };
+  const next: DaifugoState = { ...s, passed: s.passed.map((p, i) => p || i === a.by), log: `${nm(s, a.by)} passed.` };
   const turn = nextActive(next, a.by, true);
   // Back to whoever played last, or nobody left who hasn't passed: the trick is over.
   if (turn === s.table.by || turn === a.by) return clearTrick(next, s.table.by, 'Everyone passed.');
@@ -511,7 +521,8 @@ export function cpuMove(s: DaifugoState, p: number, level: CpuLevel = s.rules.cp
 // ───────────────────────── rules object ─────────────────────────
 
 export function setup(rng: Rng, options: RuleOptions = {}): DaifugoState {
-  return deal(readRules(options), nextSeed(rng), 1, null, [0, 0, 0, 0]);
+  const seed = nextSeed(rng);
+  return deal(readRules(options), seed, 1, null, [0, 0, 0, 0], drawSeats(rng, PLAYERS - 1));
 }
 
 export const placeOf = (s: DaifugoState, p: number) => (s.places ? s.places[p]! : placesOf(s)[p]!);
@@ -539,8 +550,11 @@ export const daifugoRules: GameRules<DaifugoState, DaifugoAction> = {
   },
   auto: (s) => {
     if (s.phase !== 'play' || s.turn === HUMAN || isOut(s, s.turn)) return null;
-    return { action: cpuMove(s, s.turn), delayMs: 850 };
+    const move = cpuMove(s, s.turn);
+    // A pass while holding many cards is a reluctant one: a little hesitation shows it.
+    const tense = move.type === 'pass' && s.hands[s.turn]!.length > 5;
+    return { action: move, delayMs: 360 + tempo(personalityOf(s.seats, s.turn), s.rules.cpu, tense, `${s.seed}${s.turn}`) };
   },
   score: (s) => s.points[HUMAN]!,
-  summary: (s) => s.points.map((pts, p) => `${name(p)} ${pts}`).join(' · '),
+  summary: (s) => s.points.map((pts, p) => `${nm(s, p)} ${pts}`).join(' · '),
 };

@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 import { href } from '@/app/router';
 import type { GameMeta } from '@/core/types/game';
 import { GUIDES, type KeyCard } from '@/games/guides';
-import { CATEGORY_LABEL, numeralOf } from '@/games/registry';
+import { CATEGORY_LABEL } from '@/games/registry';
 import { IconButton } from '@/ui/common/Button';
 import { IconPlay } from '@/ui/common/icons';
 import type { Card, CardId, Rank, Suit } from '@/core/types/card';
@@ -100,8 +100,6 @@ export function GuideDialog({ game, open, onClose }: { game: GameMeta; open: boo
             <div className="relative flex items-start gap-6 border-b border-gold/20 px-6 pt-7 pb-6 sm:px-9 sm:pt-9">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-3 text-[11px] font-medium tracking-[0.28em] text-gold uppercase">
-                  <span>No. {numeralOf(game.id)}</span>
-                  <span className="size-1 rotate-45 bg-gold/60" aria-hidden />
                   <span>{CATEGORY_LABEL[game.category]}</span>
                 </div>
                 <h2

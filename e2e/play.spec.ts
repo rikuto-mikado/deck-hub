@@ -5,8 +5,9 @@ test.describe('every game', () => {
     test(`${id} deals without errors`, async ({ page }) => {
       await page.goto(`/#/play/${id}?seed=3`);
       await expect(page.locator('.table-surface')).toBeVisible();
-      // Video Poker waits for a bet before dealing.
-      if (id === 'video-poker') await page.getByRole('button', { name: 'Deal', exact: true }).click();
+      // Video Poker, Baccarat and Red Dog wait for a bet before dealing.
+      if (id === 'video-poker' || id === 'baccarat' || id === 'red-dog')
+        await page.getByRole('button', { name: 'Deal', exact: true }).click();
       await expect(page.locator('[data-card-id]').first()).toBeVisible();
     });
   }
@@ -56,9 +57,15 @@ test.describe('opponents', () => {
     // In this deal you hold the ♦3 and lead: play the weakest card (always legal on a lead).
     await expect(page.getByText('You lead')).toBeVisible();
     // Cards in a hand overlap: tap the visible left edge, as a player would.
-    await page.getByRole('group', { name: 'Your hand' }).getByRole('button').first().click({ position: { x: 6, y: 24 } });
+    await page
+      .getByRole('group', { name: 'Your hand' })
+      .getByRole('button')
+      .first()
+      .click({ position: { x: 6, y: 24 } });
     await page.getByRole('button', { name: 'Play', exact: true }).click();
-    await expect(page.getByText(/CPU \d (played|passed)/)).toBeVisible({ timeout: 8000 });
+    await expect(page.getByText(/(Arthur|Elena|Viktor|Chloe|Julian|Clara|Marcus|Sora) (played|passed)/).first()).toBeVisible({
+      timeout: 8000,
+    });
   });
 
   test('blackjack settles a hand', async ({ page }) => {

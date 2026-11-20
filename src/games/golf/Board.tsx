@@ -5,7 +5,7 @@ import { canPlay, type GolfAction, type GolfState } from './logic';
 
 export default function GolfBoard({ state, dispatch }: BoardProps<GolfState, GolfAction>) {
   return (
-    <div style={columnsStyle(7, 100, 2.9)} className="flex flex-col gap-5">
+    <div style={columnsStyle(7, 118, 2.9)} className="flex flex-col gap-5">
       <div className="flex justify-between gap-[var(--gap)]">
         {state.columns.map((col, i) => (
           <Pile

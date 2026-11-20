@@ -28,6 +28,45 @@ const LOADERS: Record<string, () => Promise<{ default: AnyGameDefinition }>> = {
   sevens: () => import('./sevens'),
   daifugo: () => import('./daifugo'),
   speed: () => import('./speed'),
+  'aces-up': () => import('./aces-up'),
+  war: () => import('./war'),
+  'poker-squares': () => import('./poker-squares'),
+  baccarat: () => import('./baccarat'),
+  yukon: () => import('./yukon'),
+  'forty-thieves': () => import('./forty-thieves'),
+  'clock-solitaire': () => import('./clock-solitaire'),
+  'page-one': () => import('./page-one'),
+  doubt: () => import('./doubt'),
+  regicide: () => import('./regicide'),
+  'gin-rummy': () => import('./gin-rummy'),
+  'texas-holdem': () => import('./texas-holdem'),
+  hearts: () => import('./hearts'),
+  spades: () => import('./spades'),
+  napoleon: () => import('./napoleon'),
+  canfield: () => import('./canfield'),
+  'monte-carlo': () => import('./monte-carlo'),
+  calculation: () => import('./calculation'),
+  accordion: () => import('./accordion'),
+  'crazy-quilt': () => import('./crazy-quilt'),
+  'card-capture': () => import('./card-capture'),
+  gridcannon: () => import('./gridcannon'),
+  'the-emissary': () => import('./the-emissary'),
+  'six-card-golf': () => import('./six-card-golf'),
+  euchre: () => import('./euchre'),
+  schnapsen: () => import('./schnapsen'),
+  cribbage: () => import('./cribbage'),
+  'beleaguered-castle': () => import('./beleaguered-castle'),
+  elevens: () => import('./elevens'),
+  osmosis: () => import('./osmosis'),
+  'red-dog': () => import('./red-dog'),
+  gops: () => import('./gops'),
+  'ninety-nine': () => import('./ninety-nine'),
+  yaniv: () => import('./yaniv'),
+  palace: () => import('./palace'),
+  'big-two': () => import('./big-two'),
+  durak: () => import('./durak'),
+  'oh-hell': () => import('./oh-hell'),
+  cuttle: () => import('./cuttle'),
 };
 
 const META: readonly GameMeta[] = [
@@ -80,7 +119,111 @@ const META: readonly GameMeta[] = [
     players: 1,
     difficulty: 3,
   },
-  // ── Special ──
+  {
+    id: 'yukon',
+    name: 'Yukon',
+    description: 'Klondike without a stock: move any face-up card, with everything on top of it.',
+    category: 'solitaire',
+    players: 1,
+    difficulty: 2,
+  },
+  {
+    id: 'aces-up',
+    name: 'Aces Up',
+    description: 'Discard lower cards of a suit until only the four Aces remain.',
+    category: 'solitaire',
+    players: 1,
+    difficulty: 1,
+  },
+  {
+    id: 'forty-thieves',
+    name: 'Forty Thieves',
+    description: 'Two decks, ten columns, one card at a time. A true test.',
+    category: 'solitaire',
+    players: 1,
+    difficulty: 3,
+  },
+  {
+    id: 'clock-solitaire',
+    name: 'Clock',
+    description: 'Turn cards around the clock face before the fourth King appears.',
+    category: 'solitaire',
+    players: 1,
+    difficulty: 1,
+  },
+  {
+    id: 'poker-squares',
+    name: 'Poker Squares',
+    description: 'Place 25 cards on a 5×5 grid; every row, column and diagonal is a poker hand.',
+    category: 'solitaire',
+    players: 1,
+    difficulty: 2,
+  },
+  {
+    id: 'canfield',
+    name: 'Canfield',
+    description: 'A casino classic: a 13-card reserve and a random foundation base.',
+    category: 'solitaire',
+    players: 1,
+    difficulty: 3,
+  },
+  {
+    id: 'monte-carlo',
+    name: 'Monte Carlo',
+    description: 'Pair off touching cards of the same rank, then close the gaps.',
+    category: 'solitaire',
+    players: 1,
+    difficulty: 1,
+  },
+  {
+    id: 'calculation',
+    name: 'Calculation',
+    description: 'Build four foundations by ones, twos, threes and fours.',
+    category: 'solitaire',
+    players: 1,
+    difficulty: 3,
+  },
+  {
+    id: 'accordion',
+    name: 'Accordion',
+    description: 'Squeeze a line of 52 cards into a single pile.',
+    category: 'solitaire',
+    players: 1,
+    difficulty: 2,
+  },
+  {
+    id: 'crazy-quilt',
+    name: 'Crazy Quilt',
+    description: 'Two decks woven into an 8×8 quilt of crossed cards.',
+    category: 'solitaire',
+    players: 1,
+    difficulty: 3,
+  },
+  {
+    id: 'beleaguered-castle',
+    name: 'Beleaguered Castle',
+    description: 'Eight wings of cards flank the four Aces in the castle keep.',
+    category: 'solitaire',
+    players: 1,
+    difficulty: 2,
+  },
+  {
+    id: 'elevens',
+    name: 'Elevens',
+    description: 'Clear a 3×3 grid with pairs that make eleven and J-Q-K trios.',
+    category: 'solitaire',
+    players: 1,
+    difficulty: 1,
+  },
+  {
+    id: 'osmosis',
+    name: 'Osmosis',
+    description: 'Ranks seep down through four foundation rows.',
+    category: 'solitaire',
+    players: 1,
+    difficulty: 2,
+  },
+  // ── Solo & Dungeon ──
   {
     id: 'scoundrel',
     name: 'Scoundrel',
@@ -90,12 +233,12 @@ const META: readonly GameMeta[] = [
     difficulty: 2,
   },
   {
-    id: 'video-poker',
-    name: 'Video Poker',
-    description: 'Hold, draw, and make the best poker hand.',
+    id: 'regicide',
+    name: 'Regicide',
+    description: 'Defeat twelve royal bosses using the powers of the four suits.',
     category: 'special',
     players: 1,
-    difficulty: 1,
+    difficulty: 3,
   },
   {
     id: 'high-low',
@@ -105,15 +248,121 @@ const META: readonly GameMeta[] = [
     players: 1,
     difficulty: 1,
   },
-  // ── vs CPU ──
+  {
+    id: 'card-capture',
+    name: 'Card Capture',
+    description: 'Capture the dungeon row to build a stronger deck.',
+    category: 'special',
+    players: 1,
+    difficulty: 2,
+  },
+  {
+    id: 'gridcannon',
+    name: 'Gridcannon',
+    description: 'Fire numbered cards across a 3×3 grid at armoured royals.',
+    category: 'special',
+    players: 1,
+    difficulty: 3,
+  },
+  {
+    id: 'the-emissary',
+    name: 'The Emissary',
+    description: 'Win exactly as many tricks as each ruler demands.',
+    category: 'special',
+    players: 1,
+    difficulty: 3,
+  },
+  // ── Casino ──
   {
     id: 'blackjack',
     name: 'Blackjack',
     description: 'Beat the dealer by getting closer to 21.',
-    category: 'cpu',
+    category: 'casino',
     players: 2,
     difficulty: 1,
   },
+  {
+    id: 'video-poker',
+    name: 'Video Poker',
+    description: 'Hold, draw, and make the best poker hand.',
+    category: 'casino',
+    players: 1,
+    difficulty: 1,
+  },
+  {
+    id: 'texas-holdem',
+    name: "Texas Hold'em",
+    description: 'No-limit poker against the salon regulars.',
+    category: 'casino',
+    players: 4,
+    difficulty: 3,
+  },
+  {
+    id: 'baccarat',
+    name: 'Baccarat',
+    description: 'Bet on Player, Banker or Tie in the classic Punto Banco.',
+    category: 'casino',
+    players: 1,
+    difficulty: 1,
+  },
+  {
+    id: 'red-dog',
+    name: 'Red Dog',
+    description: 'Will the third card fall between the first two?',
+    category: 'casino',
+    players: 1,
+    difficulty: 1,
+  },
+  // ── Trick-Taking ──
+  {
+    id: 'hearts',
+    name: 'Hearts',
+    description: 'Dodge every heart and the Queen of Spades — or shoot the moon.',
+    category: 'trick-taking',
+    players: 4,
+    difficulty: 2,
+  },
+  {
+    id: 'spades',
+    name: 'Spades',
+    description: 'Bid your tricks with a partner. Spades are always trump.',
+    category: 'trick-taking',
+    players: 4,
+    difficulty: 2,
+  },
+  {
+    id: 'napoleon',
+    name: 'Napoleon',
+    description: 'Bid for the face cards and find your secret Adjutant.',
+    category: 'trick-taking',
+    players: 4,
+    difficulty: 3,
+  },
+  {
+    id: 'euchre',
+    name: 'Euchre',
+    description: 'Order up trump and ride the bowers with your partner.',
+    category: 'trick-taking',
+    players: 4,
+    difficulty: 2,
+  },
+  {
+    id: 'schnapsen',
+    name: 'Schnapsen',
+    description: 'Race to 66 in twenty cards. Marry your King and Queen.',
+    category: 'trick-taking',
+    players: 2,
+    difficulty: 2,
+  },
+  {
+    id: 'oh-hell',
+    name: 'Oh Hell!',
+    description: 'Bid exactly the tricks you will take. Not one more.',
+    category: 'trick-taking',
+    players: 4,
+    difficulty: 2,
+  },
+  // ── Table & Party ──
   {
     id: 'concentration',
     name: 'Concentration',
@@ -154,6 +403,110 @@ const META: readonly GameMeta[] = [
     players: 2,
     difficulty: 2,
   },
+  {
+    id: 'page-one',
+    name: 'Page One',
+    description: 'Match suit or rank, eights are wild. Call "Page One!" on your last card.',
+    category: 'cpu',
+    players: 4,
+    difficulty: 1,
+  },
+  {
+    id: 'doubt',
+    name: 'Doubt',
+    description: 'Play cards face down and lie with a straight face. Doubt!',
+    category: 'cpu',
+    players: 4,
+    difficulty: 1,
+  },
+  {
+    id: 'gin-rummy',
+    name: 'Gin Rummy',
+    description: 'Meld runs and sets, then knock — or go Gin.',
+    category: 'cpu',
+    players: 2,
+    difficulty: 2,
+  },
+  {
+    id: 'war',
+    name: 'War',
+    description: 'Flip, compare, and go to war on a tie.',
+    category: 'cpu',
+    players: 2,
+    difficulty: 1,
+  },
+  {
+    id: 'cribbage',
+    name: 'Cribbage',
+    description: 'Peg your way to 121 with fifteens, pairs and runs.',
+    category: 'cpu',
+    players: 2,
+    difficulty: 3,
+  },
+  {
+    id: 'six-card-golf',
+    name: 'Six-Card Golf',
+    description: 'Swap and flip your way to the lowest grid at the table.',
+    category: 'cpu',
+    players: 4,
+    difficulty: 1,
+  },
+  {
+    id: 'cuttle',
+    name: 'Cuttle',
+    description: 'A duel of points, scuttles and one-off powers. First to 21.',
+    category: 'cpu',
+    players: 2,
+    difficulty: 3,
+  },
+  {
+    id: 'gops',
+    name: 'GOPS',
+    description: 'Bid secretly for each diamond. Pure strategy, no luck.',
+    category: 'cpu',
+    players: 2,
+    difficulty: 1,
+  },
+  {
+    id: 'yaniv',
+    name: 'Yaniv',
+    description: 'Shed to seven or less and call Yaniv — beware of Assaf!',
+    category: 'cpu',
+    players: 4,
+    difficulty: 2,
+  },
+  {
+    id: 'palace',
+    name: 'Palace',
+    description: 'Play up or burn the pile, then survive your blind cards.',
+    category: 'cpu',
+    players: 4,
+    difficulty: 2,
+  },
+  {
+    id: 'durak',
+    name: 'Durak',
+    description: 'Attack and defend with trumps. Do not be the fool.',
+    category: 'cpu',
+    players: 4,
+    difficulty: 2,
+  },
+  {
+    id: 'big-two',
+    name: 'Big Two',
+    description: 'Climb with singles, pairs and poker hands. Twos are top.',
+    category: 'cpu',
+    players: 4,
+    difficulty: 2,
+  },
+  {
+    id: 'ninety-nine',
+    name: 'Ninety-Nine',
+    description: 'Keep the count at 99 or under — or lose a life.',
+    category: 'cpu',
+    players: 4,
+    difficulty: 1,
+  },
 ];
 
 export const CATALOG: readonly CatalogEntry[] = META.map((meta) => {
@@ -161,38 +514,25 @@ export const CATALOG: readonly CatalogEntry[] = META.map((meta) => {
   return loader ? { ...meta, load: () => loader().then((m) => m.default) } : meta;
 });
 
-const CASINO = new Set(['blackjack', 'video-poker']);
+const TONE: Record<GameMeta['category'], TableTone> = {
+  solitaire: 'navy',
+  special: 'ember',
+  casino: 'wine',
+  'trick-taking': 'forest',
+  cpu: 'forest',
+};
 
-/** Table colour for a game: navy solitaire, ember special rules, wine casino, forest versus. */
+/** Table colour for a game: navy solitaire, ember solo rules, wine casino, forest versus. */
 export function toneOf(meta: Pick<GameMeta, 'id' | 'category'>): TableTone {
-  if (CASINO.has(meta.id)) return 'wine';
-  return meta.category === 'solitaire' ? 'navy' : meta.category === 'special' ? 'ember' : 'forest';
-}
-
-/** Roman numeral for a 1-based catalog position, used as each game's plate number. */
-export function numeralOf(id: string): string {
-  const n = CATALOG.findIndex((g) => g.id === id) + 1;
-  const table: [number, string][] = [
-    [10, 'X'],
-    [9, 'IX'],
-    [5, 'V'],
-    [4, 'IV'],
-    [1, 'I'],
-  ];
-  let out = '',
-    rest = n;
-  for (const [v, s] of table)
-    while (rest >= v) {
-      out += s;
-      rest -= v;
-    }
-  return out;
+  return TONE[meta.category];
 }
 
 export const CATEGORY_LABEL: Record<GameMeta['category'], string> = {
   solitaire: 'Solitaire',
-  special: 'Special rules',
-  cpu: 'vs CPU',
+  special: 'Solo & Dungeon',
+  casino: 'Casino',
+  'trick-taking': 'Trick-Taking',
+  cpu: 'Table & Party',
 };
 
 export function findGame(id: string): CatalogEntry | undefined {

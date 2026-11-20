@@ -217,50 +217,6 @@ function JokerFace() {
   );
 }
 
-/**
- * Small-card face: a large rank and suit that stay readable at 25–50px wide, the way
- * mobile solitaire apps draw them. CSS swaps it in via a container query on `.card`.
- */
-function Compact({ card, fill }: { card: Card; fill: string }) {
-  if (card.kind === 'joker') {
-    return (
-      <g>
-        <path d="M125 70l22 46 50 6-36 34 10 50-46-24-46 24 10-50-36-34 50-6z" fill={GILT} />
-        <text
-          x={W / 2}
-          y={300}
-          textAnchor="middle"
-          fontFamily="var(--font-card)"
-          fontSize={64}
-          fontStyle="italic"
-          fontWeight={700}
-          fill={BLACK}
-        >
-          Joker
-        </text>
-      </g>
-    );
-  }
-  const ten = card.rank === 10;
-  return (
-    <g>
-      <text
-        x={22}
-        y={124}
-        fill={fill}
-        fontFamily="var(--font-card)"
-        fontWeight={700}
-        fontSize={ten ? 108 : 128}
-        letterSpacing={ten ? -10 : 0}
-      >
-        {rankLabel(card.rank)}
-      </text>
-      <SuitMark suit={card.suit} cx={192} cy={74} size={78} fill={fill} />
-      <SuitMark suit={card.suit} cx={W / 2} cy={250} size={140} fill={fill} />
-    </g>
-  );
-}
-
 export const CardFace = memo(function CardFace({ card }: { card: Card }) {
   const fill = card.kind === 'joker' ? BLACK : suitColor(card.suit) === 'red' ? RED : BLACK;
   // Gradient ids must be unique per card: with a shared id, every card's paper depends on the
@@ -322,9 +278,6 @@ export const CardFace = memo(function CardFace({ card }: { card: Card }) {
             )}
           </>
         )}
-      </g>
-      <g className="cf-compact">
-        <Compact card={card} fill={fill} />
       </g>
     </svg>
   );

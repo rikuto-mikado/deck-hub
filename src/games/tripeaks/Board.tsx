@@ -6,7 +6,7 @@ import { SLOTS, canPlay, isOpen, type TriPeaksAction, type TriPeaksState } from 
 
 export default function TriPeaksBoard({ state, dispatch }: BoardProps<TriPeaksState, TriPeaksAction>) {
   return (
-    <div style={columnsStyle(10, 88, 3.7)} className="flex flex-col items-center gap-5">
+    <div style={columnsStyle(10, 104, 3.7)} className="flex flex-col items-center gap-5">
       <div className="relative" style={{ width: 'calc(var(--card-w) * 10)', height: 'calc(var(--card-h) * 2.5)' }}>
         {state.peaks.map((card, i) => {
           if (!card) return null;

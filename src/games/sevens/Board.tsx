@@ -4,6 +4,7 @@ import { Card } from '@/ui/card/Card';
 import { Button } from '@/ui/common/Button';
 import { Pile } from '@/ui/pile/Pile';
 import { Seat } from '@/ui/table/Seat';
+import { seatName } from '../cpuLevel';
 import { HUMAN, MAX_PASSES, PLAYERS, isPlayable, type SevensAction, type SevensState } from './logic';
 
 export default function SevensBoard({ state, dispatch }: BoardProps<SevensState, SevensAction>) {
@@ -21,7 +22,7 @@ export default function SevensBoard({ state, dispatch }: BoardProps<SevensState,
     <div className="layout-table flex flex-col gap-3">
       <div className="area-seats grid grid-cols-3 gap-2">
         {Array.from({ length: PLAYERS - 1 }, (_, k) => k + 1).map((p) => (
-          <Seat key={p} name={`CPU ${p}`} cards={state.hands[p]!} active={state.turn === p} note={note(p)} />
+          <Seat key={p} name={seatName(state.seats, p)} cards={state.hands[p]!} active={state.turn === p} note={note(p)} />
         ))}
       </div>
 

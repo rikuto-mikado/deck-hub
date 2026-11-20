@@ -1,6 +1,8 @@
 # Talonbox
 
-Fifteen classic card games in the browser — solitaire, casino and table games against the computer.
+54 classic card games in the browser — one for every card in a full deck, Jokers included.
+Solitaire, solo and dungeon games, casino tables, trick-taking and party games against computer opponents
+who each have a name and a hidden playing style.
 React + TypeScript + Vite + Tailwind CSS, with Zustand and Motion. Everything runs in the browser; nothing is saved on a server.
 
 ```
@@ -20,14 +22,14 @@ Append `?seed=<number>` to a game URL (e.g. `#/play/klondike?seed=42`) to replay
 
 | Path                         | What lives there                                                                                                   |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `src/core/`                  | Cards, decks, seeded RNG, shuffle, shared rule helpers (no React)                                                  |
+| `src/core/`                  | Cards, decks, seeded RNG, shuffle, shared rule helpers: poker hands, trick-taking, rummy melds (no React)          |
 | `src/engine/`                | `createGameStore` (undo, rule variants, auto steps, clock) and `<GameScreen>` (control bar, hints, sounds, result) |
-| `src/ui/`                    | `<Card>` (faces and backs are SVG), `<Pile>`, `<Table>`, `<Seat>`, drag and drop                                   |
+| `src/ui/`                    | `<Card>` (faces and backs are SVG), `<Pile>`, `<Table>`, `<Seat>`, `<TrickTable>`, drag and drop                   |
 | `src/games/<id>/`            | One folder per game: `logic.ts`, `logic.test.ts`, `Board.tsx`, `index.ts`                                          |
-| `src/games/registry.ts`      | Game catalog, lazy loaders, table tones                                                                            |
+| `src/games/registry.ts`      | Game catalog, lazy loaders, categories and table tones                                                             |
 | `src/games/guides.ts`        | The how-to-play guide for every game                                                                               |
-| `src/games/cpuLevel.ts`      | Easy / Normal / Hard setting shared by games with computer players                                                 |
-| `src/pages/home/previews.ts` | The miniature table drawn for each game in the picker                                                              |
+| `src/games/cpuLevel.ts`      | Easy / Normal / Hard setting, opponent names, hidden personalities and decision timing                             |
+| `src/pages/home/previews.ts` | The miniature table drawn for each game in the home gallery                                                        |
 | `e2e/`                       | Playwright tests, including layout checks on phones held both ways                                                 |
 
 ## Adding a game
@@ -43,8 +45,13 @@ Append `?seed=<number>` to a game URL (e.g. `#/play/klondike?seed=42`) to replay
 4. Export a `GameDefinition` from `index.ts`, then add the metadata and loader in `registry.ts`.
 5. Add the game's guide to `src/games/guides.ts` and its miniature table to `src/pages/home/previews.ts`.
    `src/games/catalog.test.ts` fails until both exist.
-6. Rule variants go in the definition's `options` (use `CPU_OPTION` for computer opponents); the chosen values arrive
+6. Pick the game's `category` in `registry.ts`: `solitaire`, `special` (solo and dungeon), `casino`, `trick-taking`
+   or `cpu` (table and party games). The category sets the home filter and the table colour.
+7. Rule variants go in the definition's `options` (use `CPU_OPTION` for computer opponents); the chosen values arrive
    as the second argument of `setup`, and players change them from the Rules panel (their last choice is remembered).
+8. Computer opponents: call `drawSeats(rng, n)` from `cpuLevel.ts` after dealing to give each one a name and a hidden
+   personality, use `TRAITS` to bias their choices, and `tempo()` for the `delayMs` of their `auto` steps.
+   Set `undoable: false` on games with hidden cards or opponents.
 
 ## Notes
 

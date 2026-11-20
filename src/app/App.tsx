@@ -1,14 +1,19 @@
 import { HomePage } from '@/pages/HomePage';
 import { PlayPage } from '@/pages/PlayPage';
+import { RotateHint } from '@/engine/RotateHint';
 import { ErrorBoundary } from './ErrorBoundary';
 import { usePath } from './router';
 
 export function App() {
   const path = usePath();
   return (
-    <ErrorBoundary key={path}>
-      <Routes path={path} />
-    </ErrorBoundary>
+    <>
+      <ErrorBoundary key={path}>
+        <Routes path={path} />
+      </ErrorBoundary>
+      {/* Every screen, the home gallery included, is played in landscape on touch devices. */}
+      <RotateHint />
+    </>
   );
 }
 
@@ -17,7 +22,7 @@ function Routes({ path }: { path: string }) {
 
   if (head === 'play' && arg) {
     return (
-      <main className="mx-auto w-full max-w-5xl px-4 py-4 sm:px-6 short:py-1.5">
+      <main className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 short:py-1.5">
         <PlayPage gameId={arg} />
       </main>
     );

@@ -38,7 +38,7 @@
   color-scheme: dark;
   /* Card size scales with the viewport: 7 columns + gaps must fit a 360px phone. */
   --gap: clamp(4px, 1.4vw, 14px);
-  --card-w: clamp(40px, calc((min(100vw, 1024px) - 80px) / 7.6), 104px);
+  --card-w: clamp(40px, calc((min(100vw, 1280px) - 80px) / 7.6), 104px);
 }
 
 /* Recomputed on every element so a subtree that overrides --card-w gets a matching height. */
@@ -144,12 +144,14 @@ body {
 
 /* ── Cards ──────────────────────────────────────────────────────────── */
 .card {
-  /* Lets the face switch to its large-index layout when the card is drawn small. */
-  container: card / inline-size;
   filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.45)) drop-shadow(0 6px 10px rgb(0 0 0 / 0.28));
 }
 .card-preview {
-  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.45)) drop-shadow(0 6px 10px rgb(0 0 0 / 0.28));
+  /* A plain box-shadow, not drop-shadow filters: the home page draws thousands of these. */
+  border-radius: 3px;
+  box-shadow:
+    0 1px 1px rgb(0 0 0 / 0.4),
+    0 4px 8px rgb(0 0 0 / 0.22);
 }
 .card-selected {
   filter: drop-shadow(0 0 1px var(--color-gold-bright)) drop-shadow(0 0 7px rgb(226 194 126 / 0.85));
@@ -175,17 +177,6 @@ body {
   /* One filter list: a separate brightness utility would be overridden by .card's drop shadows. */
   filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.45)) drop-shadow(0 6px 10px rgb(0 0 0 / 0.28)) brightness(0.68) saturate(0.85);
 }
-.cf-compact {
-  display: none;
-}
-@container card (max-width: 54px) {
-  .cf-full {
-    display: none;
-  }
-  .cf-compact {
-    display: inline;
-  }
-}
 .card:focus-visible {
   outline: 2px solid var(--color-gold-bright);
   outline-offset: 2px;
@@ -206,27 +197,11 @@ body {
   background: rgb(201 164 92 / 0.12);
 }
 
-/* ── Home: featured game beside the fan only when there is room for both ─ */
-@media (min-width: 1100px), (min-width: 700px) and (orientation: landscape) {
-  .hero {
-    grid-template-columns: minmax(280px, 440px) minmax(0, 1fr);
-  }
-}
-
-/* ── Home: horizontally scrolling collection ────────────────────────── */
-.collection-track {
-  display: flex;
-  gap: 20px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scroll-padding-left: var(--page-x);
-  padding: 12px var(--page-x) 24px;
-  scrollbar-width: none;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 var(--page-x), #000 calc(100% - 64px), transparent 100%);
-  mask-image: linear-gradient(90deg, transparent 0, #000 var(--page-x), #000 calc(100% - 64px), transparent 100%);
-}
-.collection-track::-webkit-scrollbar {
-  display: none;
+/* ── Home: the collection gallery ────────────────────────────────── */
+.collection-tile {
+  /* Off-screen tiles skip layout and paint of their miniature tables until scrolled near. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 300px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -261,11 +236,11 @@ body {
 
 /* Card sizes for the four-player tables, capped by height so a sideways phone fits. */
 .hand-cards {
-  --card-w: clamp(40px, min(12vw, calc((100dvh - 300px) / 1.4)), 80px);
+  --card-w: clamp(40px, min(12vw, calc((100dvh - 300px) / 1.4)), 100px);
 }
 /* Sevens: 13 columns across; 4 rows plus the seats and hand must also fit a phone held sideways. */
 .sevens-board {
-  --card-w: clamp(20px, min(calc((min(100vw, 1024px) - 80px) / 13.8), calc((100dvh - 330px) / 5.8)), 56px);
+  --card-w: clamp(20px, min(calc((min(100vw, 1280px) - 80px) / 13.8), calc((100dvh - 330px) / 5.8)), 56px);
 }
 @media (max-height: 520px) and (orientation: landscape) {
   .sevens-board {
@@ -273,7 +248,7 @@ body {
   }
 }
 .seat-cards {
-  --card-w: clamp(22px, 6vw, 36px);
+  --card-w: clamp(22px, 6vw, 48px);
 }
 .seat-cards-pick {
   --card-w: clamp(30px, 9vw, 52px);
@@ -287,7 +262,7 @@ body {
   }
 }
 .mid-cards {
-  --card-w: clamp(30px, min(10vw, calc((100dvh - 320px) / 1.4)), 64px);
+  --card-w: clamp(30px, min(10vw, calc((100dvh - 320px) / 1.4)), 84px);
 }
 
 /*
@@ -319,6 +294,18 @@ body {
   }
 }
 
+/* Phones held sideways: table buttons shrink a little so controls and cards share the height. */
+@media (max-height: 520px) and (orientation: landscape) {
+  .layout-table button,
+  .layout-split button {
+    min-height: 2.125rem;
+    padding-inline: 0.75rem;
+  }
+  .trick-compass {
+    grid-template-rows: repeat(3, calc(var(--card-h) * 0.5));
+  }
+}
+
 /* Concentration: 8 columns on phones, 13 on wider screens. */
 .concentration-grid {
   --card-w: clamp(28px, calc((100vw - 80px) / 8.7), 64px);
@@ -327,7 +314,7 @@ body {
 @media (min-width: 720px) {
   .concentration-grid {
     /* 13 × 4 grid: also capped by height so it fits a phone held sideways. */
-    --card-w: clamp(28px, min(calc((min(100vw, 1024px) - 140px) / 14), calc((100dvh - 250px) / 6)), 66px);
+    --card-w: clamp(28px, min(calc((min(100vw, 1280px) - 140px) / 14), calc((100dvh - 250px) / 6)), 66px);
     grid-template-columns: repeat(13, var(--card-w));
   }
 }

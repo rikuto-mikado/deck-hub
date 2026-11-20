@@ -3,11 +3,14 @@ import { createRng, nextSeed, type Rng } from '@/core/deck/rng';
 import { shuffle } from '@/core/deck/shuffle';
 import type { Card } from '@/core/types/card';
 import type { GameRules } from '@/core/types/game';
+import { drawSeats, personalityOf, seatName, tempo, type CpuSeat } from '../cpuLevel';
 
 export const PLAYERS = 4;
 export const HUMAN = 0;
 
 export interface OldMaidState {
+  /** Named opponents with hidden personalities (seats 1–3). */
+  seats: CpuSeat[];
   hands: Card[][];
   discard: Card[];
   turn: number;
@@ -61,13 +64,16 @@ export function setup(rng: Rng): OldMaidState {
     discard.push(...r.pairs);
     return p === HUMAN ? sortHand(r.hand).map((c) => ({ ...c, faceUp: true })) : r.hand;
   });
+  const seed = nextSeed(rng);
+  const seats = drawSeats(rng, PLAYERS - 1);
   return {
+    seats,
     hands: cleaned,
     discard: discard.map((c) => ({ ...c, faceUp: true })),
     turn: HUMAN,
     finished: [],
-    seed: nextSeed(rng),
-    log: 'Pairs are discarded. Draw from the CPU to your left.',
+    seed,
+    log: `Pairs are discarded. Draw from ${seats[0]!.name}, on your left.`,
   };
 }
 
@@ -100,10 +106,10 @@ function reduce(s: OldMaidState, a: OldMaidAction): OldMaidState {
     seed: nextSeed(rng),
     log: '',
   };
-  const who = a.by === HUMAN ? 'You' : `CPU ${a.by}`;
+  const who = seatName(s.seats, a.by);
   next.log = pairs.length ? `${who} made a pair.` : card.kind === 'joker' ? `${who} drew the Joker!` : `${who} drew a card.`;
   if (a.by === HUMAN && card.kind === 'joker') next.log = 'You drew the Joker…';
-  else if (a.by !== HUMAN && from === HUMAN && card.kind === 'joker') next.log = `CPU ${a.by} took your Joker!`;
+  else if (a.by !== HUMAN && from === HUMAN && card.kind === 'joker') next.log = `${who} took your Joker!`;
   next.turn = isActive(next, a.by) ? targetOf(next, a.by) : targetOf(next, a.by);
   return next;
 }
@@ -123,7 +129,9 @@ export const oldMaidRules: GameRules<OldMaidState, OldMaidAction> = {
     const target = targetOf(s, s.turn);
     const n = s.hands[target]!.length;
     const index = createRng(s.seed ^ 0x9e3779b9).int(n);
-    return { action: { type: 'draw', by: s.turn, index }, delayMs: 750 };
+    // Drawing from a hand known to hold the Joker is a nervous moment.
+    const tense = s.hands[target]!.some((c) => c.kind === 'joker');
+    return { action: { type: 'draw', by: s.turn, index }, delayMs: 350 + tempo(personalityOf(s.seats, s.turn), 'normal', tense) };
   },
   summary: (s) =>
     s.finished.includes(HUMAN)

@@ -19,7 +19,7 @@ export default function KlondikeBoard({ state, dispatch }: BoardProps<KlondikeSt
 
   return (
     <DragProvider onDrop={onDrop}>
-      <div style={columnsStyle(7, 100, 2.9)} className="grid grid-cols-7 justify-items-center gap-x-[var(--gap)] gap-y-4">
+      <div style={columnsStyle(7, 118, 2.9)} className="grid grid-cols-7 justify-items-center gap-x-[var(--gap)] gap-y-4">
         <Pile
           cards={state.stock}
           label="Stock"

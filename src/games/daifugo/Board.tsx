@@ -4,10 +4,10 @@ import { Button } from '@/ui/common/Button';
 import { useResettableState } from '@/ui/hooks/useResettableState';
 import { Pile } from '@/ui/pile/Pile';
 import { Seat } from '@/ui/table/Seat';
+import { seatName } from '../cpuLevel';
 import { HUMAN, PLAYERS, POINTS, TITLES, legalShape, placeOf, type DaifugoAction, type DaifugoState } from './logic';
 
 const SUIT_SYMBOL = { spades: '♠', hearts: '♥', diamonds: '♦', clubs: '♣' } as const;
-const name = (p: number) => (p === HUMAN ? 'You' : `CPU ${p}`);
 
 function Badge({ children, tone = 'gold' }: { children: React.ReactNode; tone?: 'gold' | 'red' }) {
   return (
@@ -20,6 +20,7 @@ function Badge({ children, tone = 'gold' }: { children: React.ReactNode; tone?: 
 }
 
 export default function DaifugoBoard({ state, dispatch }: BoardProps<DaifugoState, DaifugoAction>) {
+  const name = (p: number) => seatName(state.seats, p);
   // The selection is for this hand and phase; it starts over when either changes.
   const [picked, setPicked] = useResettableState<Set<CardId>>(() => new Set(), [state.hands, state.phase]);
 
@@ -58,7 +59,7 @@ export default function DaifugoBoard({ state, dispatch }: BoardProps<DaifugoStat
           {Array.from({ length: PLAYERS - 1 }, (_, k) => k + 1).map((p) => (
             <Seat
               key={p}
-              name={`CPU ${p}`}
+              name={name(p)}
               cards={state.hands[p]!}
               active={state.phase === 'play' && state.turn === p}
               note={title(p)}

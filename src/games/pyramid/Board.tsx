@@ -23,7 +23,7 @@ export default function PyramidBoard({ state, dispatch }: BoardProps<PyramidStat
 
   const wasteTop = state.waste.at(-1);
   return (
-    <div style={columnsStyle(7, 92, 4.1)} className="flex flex-col items-center gap-5">
+    <div style={columnsStyle(7, 108, 4.1)} className="flex flex-col items-center gap-5">
       <div className="flex flex-col items-center">
         {Array.from({ length: ROWS }, (_, r) => (
           <div

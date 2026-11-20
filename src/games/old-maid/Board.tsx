@@ -1,6 +1,7 @@
 import type { BoardProps } from '@/core/types/game';
 import { Pile } from '@/ui/pile/Pile';
 import { Seat } from '@/ui/table/Seat';
+import { seatName } from '../cpuLevel';
 import { HUMAN, PLAYERS, ordinal, targetOf, type OldMaidAction, type OldMaidState } from './logic';
 
 export default function OldMaidBoard({ state, dispatch }: BoardProps<OldMaidState, OldMaidAction>) {
@@ -14,7 +15,7 @@ export default function OldMaidBoard({ state, dispatch }: BoardProps<OldMaidStat
         {Array.from({ length: PLAYERS - 1 }, (_, k) => k + 1).map((p) => (
           <Seat
             key={p}
-            name={`CPU ${p}`}
+            name={seatName(state.seats, p)}
             cards={state.hands[p]!}
             active={state.turn === p}
             note={place(p) ?? (myTurn && p === target ? 'Pick a card ↓' : undefined)}
@@ -31,7 +32,9 @@ export default function OldMaidBoard({ state, dispatch }: BoardProps<OldMaidStat
       <div
         className={`hand-cards area-main flex flex-col items-center gap-2 rounded-xl py-2 ${myTurn ? 'bg-gold/10 ring-1 ring-gold/50' : ''}`}
       >
-        <span className="text-xs text-cream/70">{myTurn ? `Your turn — draw from CPU ${target}` : 'Your hand'}</span>
+        <span className="text-xs text-cream/70">
+          {myTurn ? `Your turn — draw from ${seatName(state.seats, target)}` : 'Your hand'}
+        </span>
         <Pile cards={state.hands[HUMAN]!} layout="fan-right" spread={1.5} label="Your hand" emptyLabel="" />
       </div>
     </div>

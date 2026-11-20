@@ -1,9 +1,8 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { useState, useSyncExternalStore } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 
-/** Phones and tablets held upright; mice and trackpads never see the hint. */
+/** Phones and tablets held upright; mice and trackpads never see the overlay. */
 const QUERY = '(pointer: coarse) and (orientation: portrait)';
-const DISMISSED = 'talonbox:portrait-ok';
 
 function subscribe(cb: () => void) {
   const m = window.matchMedia(QUERY);
@@ -12,32 +11,26 @@ function subscribe(cb: () => void) {
 }
 const isPortraitTouch = () => window.matchMedia(QUERY).matches;
 
-function wasDismissed(): boolean {
-  try {
-    return sessionStorage.getItem(DISMISSED) === '1';
-  } catch {
-    return false;
-  }
-}
-
-/** Asks touch players to turn the device sideways; tables are laid out for landscape. */
+/**
+ * Talonbox is laid out for landscape only, the home gallery as much as the tables: touch players
+ * holding the device upright must turn it sideways. There is deliberately no portrait bypass.
+ */
 export function RotateHint() {
   const portrait = useSyncExternalStore(subscribe, isPortraitTouch, () => false);
-  const [dismissed, setDismissed] = useState(wasDismissed);
-  const show = portrait && !dismissed;
 
-  const dismiss = () => {
-    try {
-      sessionStorage.setItem(DISMISSED, '1');
-    } catch {
-      /* ignore */
-    }
-    setDismissed(true);
-  };
+  // Keep the page behind the overlay from scrolling under the player's thumb.
+  useEffect(() => {
+    if (!portrait) return;
+    const overflow = document.documentElement.style.overflow;
+    document.documentElement.style.overflow = 'hidden';
+    return () => {
+      document.documentElement.style.overflow = overflow;
+    };
+  }, [portrait]);
 
   return (
     <AnimatePresence>
-      {show && (
+      {portrait && (
         <motion.div
           role="dialog"
           aria-modal="true"
@@ -66,16 +59,9 @@ export function RotateHint() {
               Turn your device sideways
             </h2>
             <p className="m-0 text-sm leading-relaxed text-body">
-              The table is laid out for landscape — every card stays readable.
+              Talonbox is laid out for landscape — every card stays large and readable.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={dismiss}
-            className="min-h-11 rounded-full px-5 text-sm font-medium text-muted underline-offset-4 hover:text-cream hover:underline"
-          >
-            Play in portrait anyway
-          </button>
         </motion.div>
       )}
     </AnimatePresence>

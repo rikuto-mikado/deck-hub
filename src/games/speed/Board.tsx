@@ -20,7 +20,7 @@ export default function SpeedBoard({ state, dispatch }: BoardProps<SpeedState, S
 
   return (
     <DragProvider onDrop={onDrop}>
-      <div style={columnsStyle(5, 100, 4.3)} className="flex flex-col items-center gap-5 short:gap-2">
+      <div style={columnsStyle(5, 118, 4.3)} className="flex flex-col items-center gap-5 short:gap-2">
         <div className="flex items-center gap-[var(--gap)]">
           <Pile cards={state.stocks[CPU]} label="CPU stock" emptyLabel="" />
           {state.fields[CPU].map((c, i) => (

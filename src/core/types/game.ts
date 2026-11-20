@@ -18,7 +18,7 @@ export interface OptionSpec {
 
 /** Reads an on/off option. */
 export const isOn = (options: RuleOptions, id: string) => options[id] === 'on';
-export type GameCategory = 'solitaire' | 'cpu' | 'special';
+export type GameCategory = 'solitaire' | 'special' | 'casino' | 'trick-taking' | 'cpu';
 
 /** A suggested move: cards to light up, and/or a short line of advice. */
 export interface Hint {

@@ -3,13 +3,15 @@ import type { Rng } from '@/core/deck/rng';
 import { shuffle } from '@/core/deck/shuffle';
 import { SUITS, type CardId, type StandardCard, type Suit } from '@/core/types/card';
 import type { GameRules, RuleOptions } from '@/core/types/game';
-import { pick, readLevel, type CpuLevel } from '../cpuLevel';
+import { drawSeats, personalityOf, pick, readLevel, seatName, tempo, type CpuLevel, type CpuSeat } from '../cpuLevel';
 
 export const PLAYERS = 4;
 export const HUMAN = 0;
 export const MAX_PASSES = 3;
 
 export interface SevensState {
+  /** Named opponents with hidden personalities (seats 1–3). */
+  seats: CpuSeat[];
   hands: StandardCard[][];
   /** Cards on the table, by suit, indexed by rank (1…13). */
   board: Record<Suit, (StandardCard | null)[]>;
@@ -32,7 +34,7 @@ export function isPlayable(s: SevensState, c: StandardCard): boolean {
 }
 
 const isOut = (s: SevensState, p: number) => s.finished.includes(p) || s.busted.includes(p);
-const name = (p: number) => (p === HUMAN ? 'You' : `CPU ${p}`);
+const nm = (s: Pick<SevensState, 'seats'>, p: number) => seatName(s.seats, p);
 
 function nextTurn(s: SevensState, from: number): number {
   for (let k = 1; k <= PLAYERS; k++) {
@@ -54,7 +56,9 @@ export function setup(rng: Rng, options: RuleOptions = {}): SevensState {
       if (c.suit === 'diamonds') first = p;
     }
   });
+  const seats = drawSeats(rng, PLAYERS - 1);
   return {
+    seats,
     hands: hands.map((h, p) => {
       const rest = h.filter((c) => c.rank !== 7);
       return p === HUMAN ? sortHand(rest) : rest.map((c) => ({ ...c, faceUp: false }));
@@ -65,7 +69,7 @@ export function setup(rng: Rng, options: RuleOptions = {}): SevensState {
     finished: [],
     busted: [],
     cpu: readLevel(options),
-    log: `All sevens are out. ${name(first)} ${first === HUMAN ? 'start' : 'starts'} (♦7).`,
+    log: `All sevens are out. ${seatName(seats, first)} ${first === HUMAN ? 'start' : 'starts'} (♦7).`,
   };
 }
 
@@ -86,7 +90,7 @@ function reduce(s: SevensState, a: SevensAction): SevensState {
       hands,
       board,
       finished,
-      log: `${name(a.by)} played ${card.rank === 1 ? 'A' : card.rank > 10 ? 'JQK'[card.rank - 11] : card.rank}${'♠♥♦♣'[SUITS.indexOf(card.suit)]}.`,
+      log: `${nm(s, a.by)} played ${card.rank === 1 ? 'A' : card.rank > 10 ? 'JQK'[card.rank - 11] : card.rank}${'♠♥♦♣'[SUITS.indexOf(card.suit)]}.`,
     };
     return { ...next, turn: nextTurn(next, a.by) };
   }
@@ -100,12 +104,12 @@ function reduce(s: SevensState, a: SevensAction): SevensState {
       hands,
       board,
       busted: [...s.busted, a.by],
-      log: `${name(a.by)} passed too often and ${a.by === HUMAN ? 'are' : 'is'} out!`,
+      log: `${nm(s, a.by)} passed too often and ${a.by === HUMAN ? 'are' : 'is'} out!`,
     };
     return { ...next, turn: nextTurn(next, a.by) };
   }
   const passes = s.passes.map((n, i) => (i === a.by ? n + 1 : n));
-  const next = { ...s, passes, log: `${name(a.by)} passed (${passes[a.by]}/${MAX_PASSES}).` };
+  const next = { ...s, passes, log: `${nm(s, a.by)} passed (${passes[a.by]}/${MAX_PASSES}).` };
   return { ...next, turn: nextTurn(next, a.by) };
 }
 
@@ -165,10 +169,16 @@ export const sevensRules: GameRules<SevensState, SevensAction> = {
   hint,
   // Play continues until every place is decided; first place wins.
   status: (s) => (!over(s) ? 'playing' : placesOf(s)[HUMAN] === 0 ? 'won' : 'lost'),
-  auto: (s) => (!over(s) && s.turn !== HUMAN && !isOut(s, s.turn) ? { action: cpuMove(s, s.turn), delayMs: 700 } : null),
+  auto: (s) => {
+    if (over(s) || s.turn === HUMAN || isOut(s, s.turn)) return null;
+    const action = cpuMove(s, s.turn);
+    // Being forced to pass hurts: Easy and Normal CPUs hesitate visibly before doing it.
+    const delay = tempo(personalityOf(s.seats, s.turn), s.cpu, action.type === 'pass', `${s.turn}${s.log}`);
+    return { action, delayMs: 300 + delay };
+  },
   summary: (s) => {
     const places = placesOf(s);
-    const order = [0, 1, 2, 3].map((place) => name(places.indexOf(place)));
+    const order = [0, 1, 2, 3].map((place) => nm(s, places.indexOf(place)));
     return `${s.busted.includes(HUMAN) ? 'You went bust. ' : ''}Final order: ${order.join(', ')}`;
   },
 };

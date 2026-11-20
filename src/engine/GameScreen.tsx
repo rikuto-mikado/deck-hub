@@ -12,7 +12,6 @@ import { Table } from '@/ui/table/Table';
 import { Celebration } from './Celebration';
 import { ControlBar } from './ControlBar';
 import { createGameStore } from './createGameStore';
-import { RotateHint } from './RotateHint';
 import { RulesPanel, preferredOptions } from './RulesPanel';
 
 const HINT_MS = 2600;
@@ -132,7 +131,7 @@ export function GameScreen<S, A>({ game, seed }: { game: GameDefinition<S, A>; s
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-2 px-1 text-xs leading-relaxed text-muted">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-2 px-1 text-xs leading-relaxed text-muted">
         {hasRules && (
           <p className="tracking-wide">
             {game
@@ -157,8 +156,6 @@ export function GameScreen<S, A>({ game, seed }: { game: GameDefinition<S, A>; s
           }}
         />
       )}
-
-      <RotateHint />
 
       {status === 'won' && <Celebration seed={dealSeed} />}
 

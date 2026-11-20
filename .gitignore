@@ -5,3 +5,9 @@ dist
 *.tsbuildinfo
 test-results
 playwright-report
+
+# AI Assistant & Local Spec files
+CLAUDE.md
+claude.md
+.claude/
+SPEC.md

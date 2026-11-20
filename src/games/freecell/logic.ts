@@ -3,7 +3,7 @@ import type { Rng } from '@/core/deck/rng';
 import { shuffle } from '@/core/deck/shuffle';
 import { faceUp, fitsFoundation, isAlternatingRun, isRed, sameColor } from '@/core/rules/cards';
 import type { StandardCard } from '@/core/types/card';
-import type { GameRules } from '@/core/types/game';
+import type { GameRules, RuleOptions } from '@/core/types/game';
 
 /** 'c0'…'c3' free cells, 'f0'…'f3' foundations, 't0'…'t7' cascades. */
 export type PileId = string;
@@ -17,12 +17,28 @@ export interface FreeCellState {
 
 export type FreeCellAction = { type: 'move'; from: PileId; index: number; to: PileId };
 
-export function setup(rng: Rng): FreeCellState {
-  const deck = faceUp(shuffle(createStandardDeck(), rng));
-  const tableau: StandardCard[][] = Array.from({ length: 8 }, () => []);
-  deck.forEach((c, i) => tableau[i % 8]!.push(c));
-  return { cells: [null, null, null, null], foundations: [[], [], [], []], tableau, moves: 0 };
+/** Double FreeCell: two decks, ten cascades, eight free cells and eight foundations. */
+export function setup(rng: Rng, options: RuleOptions = {}): FreeCellState {
+  const double = options.decks === '2';
+  const columns = double ? 10 : 8;
+  const deck = faceUp(shuffle(createStandardDeck({ decks: double ? 2 : 1 }), rng));
+  const tableau: StandardCard[][] = Array.from({ length: columns }, () => []);
+  deck.forEach((c, i) => tableau[i % columns]!.push(c));
+  const slots = double ? 8 : 4;
+  return {
+    cells: Array.from({ length: slots }, () => null),
+    foundations: Array.from({ length: slots }, () => []),
+    tableau,
+    moves: 0,
+  };
 }
+
+const totalCards = (s: FreeCellState) => s.foundations.length * 13;
+const targetsOf = (s: FreeCellState) => [
+  ...s.foundations.map((_, i) => `f${i}`),
+  ...s.tableau.map((_, i) => `t${i}`),
+  ...s.cells.map((_, i) => `c${i}`),
+];
 
 export function getPile(s: FreeCellState, id: PileId): StandardCard[] {
   const n = Number(id.slice(1));
@@ -52,10 +68,8 @@ export function canMove(s: FreeCellState, from: PileId, index: number, to: PileI
   return !top || (top.rank === head.rank + 1 && !sameColor(top, head));
 }
 
-const TARGETS = ['f0', 'f1', 'f2', 'f3', 't0', 't1', 't2', 't3', 't4', 't5', 't6', 't7', 'c0', 'c1', 'c2', 'c3'];
-
 export function bestTarget(s: FreeCellState, from: PileId, index: number): PileId | null {
-  const legal = TARGETS.filter((t) => canMove(s, from, index, t));
+  const legal = targetsOf(s).filter((t) => canMove(s, from, index, t));
   return (
     legal.find((t) => t[0] === 'f') ??
     legal.find((t) => t[0] === 't' && getPile(s, t).length) ??
@@ -84,7 +98,7 @@ function reduce(s: FreeCellState, a: FreeCellAction): FreeCellState {
 function isSafe(s: FreeCellState, card: StandardCard): boolean {
   if (card.rank <= 2) return true;
   const opposite = s.foundations.filter((f) => f[0] && isRed(f[0]) !== isRed(card)).map((f) => f.length);
-  return opposite.length === 2 && Math.min(...opposite) >= card.rank - 1;
+  return opposite.length === s.foundations.length / 2 && Math.min(...opposite) >= card.rank - 1;
 }
 
 function autoPlay(s: FreeCellState): FreeCellAction | null {
@@ -93,7 +107,7 @@ function autoPlay(s: FreeCellState): FreeCellAction | null {
     const pile = getPile(s, from);
     const card = pile.at(-1);
     if (!card || !isSafe(s, card)) continue;
-    for (let f = 0; f < 4; f++)
+    for (let f = 0; f < s.foundations.length; f++)
       if (canMove(s, from, pile.length - 1, `f${f}`)) return { type: 'move', from, index: pile.length - 1, to: `f${f}` };
   }
   return null;
@@ -108,7 +122,7 @@ function hint(s: FreeCellState) {
   s.tableau.forEach((t, i) => t.forEach((_, j) => isAlternatingRun(t.slice(j)) && sources.push([`t${i}`, j])));
   let best: { from: PileId; index: number; to: PileId; value: number } | null = null;
   for (const [from, index] of sources) {
-    for (const to of TARGETS) {
+    for (const to of targetsOf(s)) {
       if (!canMove(s, from, index, to)) continue;
       const toLen = getPile(s, to).length;
       let value: number;
@@ -130,7 +144,7 @@ export const freeCellRules: GameRules<FreeCellState, FreeCellAction> = {
   setup,
   reduce,
   hint,
-  status: (s) => (onFoundations(s) === 52 ? 'won' : 'playing'),
+  status: (s) => (onFoundations(s) === totalCards(s) ? 'won' : 'playing'),
   auto: (s) => {
     const action = autoPlay(s);
     return action ? { action, delayMs: 140 } : null;

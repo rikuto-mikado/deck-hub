@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { makeCard } from '../deck/createDeck';
 import type { Rank, Suit } from '../types/card';
-import { evaluateHand } from './pokerHands';
+import { compareHands, evaluateBestSeven, evaluateHand, rankFive } from './pokerHands';
 
 const h = (spec: string) =>
   spec.split(' ').map((t, i) => {
@@ -29,5 +29,17 @@ describe('evaluateHand', () => {
 
   it('reports the pair rank with Ace high', () => {
     expect(evaluateHand(h('Ah As 3d 7c 9s')).pairRank).toBe(14);
+  });
+});
+
+describe('seven-card evaluation', () => {
+  it('finds the best five of seven and compares kickers', () => {
+    expect(evaluateBestSeven(h('As Ks 2d 10s Qs Js 3c')).category).toBe('royal-flush');
+    const a = evaluateBestSeven(h('Ah 9c 9d 4s 7h 2c Kd'));
+    const b = evaluateBestSeven(h('Qh 9s 9h 4s 7h 2c Kd'));
+    expect(a.category).toBe('pair');
+    expect(compareHands(a, b)).toBeGreaterThan(0);
+    expect(compareHands(rankFive(h('As 2d 3c 4h 5s')), rankFive(h('2s 3d 4c 5h 6s')))).toBeLessThan(0);
+    expect(compareHands(rankFive(h('As Kd Qc Jh 9s')), rankFive(h('Ah Kc Qd Js 9h')))).toBe(0);
   });
 });

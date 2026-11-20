@@ -1,7 +1,7 @@
 {
   "name": "Talonbox",
   "short_name": "Talonbox",
-  "description": "Fifteen classic card games — solitaire, casino and table games against the computer.",
+  "description": "Fifty-four classic card games — solitaire, dungeon, casino, trick-taking and table games against the computer.",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",

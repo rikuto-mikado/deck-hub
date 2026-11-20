@@ -16,9 +16,15 @@ export default function FreeCellBoard({ state, dispatch }: BoardProps<FreeCellSt
     return true;
   };
 
+  const double = state.tableau.length > 8;
+  const cols = state.tableau.length;
+
   return (
     <DragProvider onDrop={onDrop}>
-      <div style={columnsStyle(8, 100, 3.3)} className="grid grid-cols-8 justify-items-center gap-x-[var(--gap)] gap-y-4">
+      <div
+        style={{ ...columnsStyle(cols, 118, double ? 4.6 : 3.3), gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+        className="grid justify-items-center gap-x-[var(--gap)] gap-y-4 short:gap-y-2"
+      >
         {state.cells.map((c, i) => (
           <Pile
             key={`c${i}`}
@@ -32,13 +38,15 @@ export default function FreeCellBoard({ state, dispatch }: BoardProps<FreeCellSt
         {state.foundations.map((f, i) => (
           <Pile key={`f${i}`} id={`f${i}`} cards={f} label={`Foundation ${i + 1}`} emptyLabel="A" />
         ))}
+        {/* Double FreeCell: 16 cells and foundations over a 10-wide grid; pad the second row. */}
+        {double && Array.from({ length: 2 * cols - 16 }, (_, i) => <div key={`pad${i}`} />)}
         {state.tableau.map((t, i) => (
           <Pile
             key={`t${i}`}
             id={`t${i}`}
             cards={t}
             layout="fan-down"
-            spread={t.length > 12 ? 0.75 : 1}
+            spread={t.length > 16 ? 0.6 : t.length > 12 ? 0.75 : 1}
             label={`Column ${i + 1}`}
             onCardClick={(_, idx) => tap(`t${i}`, idx)}
             isCardInteractive={(_, idx) => isAlternatingRun(t.slice(idx))}

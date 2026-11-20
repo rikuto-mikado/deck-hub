@@ -37,7 +37,7 @@ export default function BlackjackBoard({ state, dispatch }: BoardProps<Blackjack
   const many = state.hands.length > 1;
 
   return (
-    <div style={columnsStyle(many ? 8 : 6, 100, 3.4)} className="flex flex-col gap-4">
+    <div style={columnsStyle(many ? 8 : 6, 118, 3.4)} className="flex flex-col gap-4">
       <div className="flex items-start justify-between">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 text-sm text-cream/80">

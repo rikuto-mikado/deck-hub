@@ -22,7 +22,7 @@ export default function SpiderBoard({ state, dispatch }: BoardProps<SpiderState,
 
   return (
     <DragProvider onDrop={onDrop}>
-      <div style={columnsStyle(10, 88, 2.9)} className="flex flex-col gap-4">
+      <div style={columnsStyle(10, 104, 2.9)} className="flex flex-col gap-4">
         <div className="flex items-end gap-[var(--gap)]">
           <button
             type="button"
