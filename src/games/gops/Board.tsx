@@ -6,7 +6,7 @@ import { CPU, HUMAN, type GopsAction, type GopsState } from './logic';
 export default function GopsBoard({ state, dispatch }: BoardProps<GopsState, GopsAction>) {
   const myTurn = !state.bids[HUMAN] && state.hands[HUMAN].length > 0;
   return (
-    <div className="layout-table flex flex-col gap-3 [--card-w:clamp(36px,min(10vw,calc((100dvh-300px)/2.9)),92px)]">
+    <div className="layout-table flex flex-col gap-3 [--card-w:clamp(36px,min(10vw,max(calc((100dvh-300px)/2.9),var(--card-floor))),92px)]">
       <div className="area-seats flex flex-col items-center gap-1">
         <Stat label={state.seat.name} value={state.scores[CPU]} />
         <div className="seat-cards">

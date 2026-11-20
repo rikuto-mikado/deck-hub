@@ -31,7 +31,7 @@ export default function RegicideBoard({ state, dispatch }: BoardProps<RegicideSt
     });
   const defending = state.phase === 'defend';
   return (
-    <div className="layout-table flex flex-col gap-3 [--card-w:clamp(40px,min(11vw,calc((100dvh-300px)/2.9)),100px)]">
+    <div className="layout-table flex flex-col gap-3 [--card-w:clamp(40px,min(11vw,max(calc((100dvh-300px)/2.9),var(--card-floor))),100px)]">
       <div className="area-seats flex flex-wrap items-center justify-center gap-[calc(var(--gap)*2)]">
         <Pile cards={state.castle} label={`Castle, ${state.castle.length} royals left`} emptyLabel="" />
         <div className="flex flex-col gap-1.5 text-xs text-cream/80">

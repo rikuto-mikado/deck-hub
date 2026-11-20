@@ -23,7 +23,7 @@ export default function EmissaryBoard({ state, dispatch }: BoardProps<EmissarySt
     !state.used.includes(a) &&
     (a === 'edict' ? state.trick.length < 2 : a === 'herald' ? state.trick.length === 0 && state.leader === COURT : true);
   return (
-    <div className="layout-table flex flex-col gap-3 [--card-w:clamp(40px,min(11vw,calc((100dvh-300px)/2.8)),100px)]">
+    <div className="layout-table flex flex-col gap-3 [--card-w:clamp(40px,min(11vw,max(calc((100dvh-300px)/2.8),var(--card-floor))),100px)]">
       <div className="area-seats flex flex-wrap items-center justify-center gap-[var(--gap)]">
         {state.rulers.map((k, i) => (
           <Slot

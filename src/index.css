@@ -38,6 +38,8 @@
   color-scheme: dark;
   /* Card size scales with the viewport: 7 columns + gaps must fit a 360px phone. */
   --gap: clamp(4px, 1.4vw, 14px);
+  /* The smallest a card gets because of screen height; below this the page scrolls instead. */
+  --card-floor: 56px;
   --card-w: clamp(40px, calc((min(100vw, 1280px) - 80px) / 7.6), 104px);
 }
 
@@ -110,7 +112,7 @@ body {
   min-height: 100dvh;
   background:
     radial-gradient(ellipse 900px 640px at 70% -10%, var(--room-glow, rgb(201 164 92 / 0.1)), transparent 65%),
-    radial-gradient(ellipse 1600px 1100px at 50% 20%, var(--room-top, #121318) 0%, var(--color-ink) 100%) fixed;
+    radial-gradient(ellipse 1600px 1100px at 50% 20%, var(--room-top, #121318) 0%, var(--color-ink) 100%);
   background-color: var(--color-ink);
   color: var(--color-cream);
   font-family: var(--font-sans);
@@ -214,38 +216,19 @@ body {
 }
 
 /*
- * Two-column board layouts for short landscape screens: the cards stay on the left,
- * the status and controls move to a column on the right instead of stacking below.
+ * Card sizes for the multi-player tables. Height only trims them on roomy screens; on short
+ * ones (phones held sideways, small tablets) they keep a readable size and the page scrolls.
  */
-@media (max-height: 520px) and (orientation: landscape) {
-  .layout-split {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 250px);
-    column-gap: 24px;
-    row-gap: 8px;
-    align-items: start;
-  }
-  .layout-split > .area-main {
-    grid-column: 1;
-    grid-row: 1 / span 6;
-  }
-  .layout-split > .area-side {
-    grid-column: 2;
-  }
-}
-
-/* Card sizes for the four-player tables, capped by height so a sideways phone fits. */
 .hand-cards {
-  --card-w: clamp(40px, min(12vw, calc((100dvh - 300px) / 1.4)), 100px);
+  --card-w: clamp(40px, min(12vw, max(calc((100dvh - 300px) / 1.4), calc(var(--card-floor) + 8px))), 100px);
 }
-/* Sevens: 13 columns across; 4 rows plus the seats and hand must also fit a phone held sideways. */
+/* Sevens: 13 columns across, so the width is what limits it on phones. */
 .sevens-board {
-  --card-w: clamp(20px, min(calc((min(100vw, 1280px) - 80px) / 13.8), calc((100dvh - 330px) / 5.8)), 56px);
-}
-@media (max-height: 520px) and (orientation: landscape) {
-  .sevens-board {
-    --card-w: clamp(20px, min(calc((100vw - 400px) / 13.6), calc((100dvh - 180px) / 5.9)), 44px);
-  }
+  --card-w: clamp(
+    20px,
+    min(calc((min(100vw, 1280px) - 80px) / 13.8), max(calc((100dvh - 330px) / 5.8), var(--card-floor))),
+    56px
+  );
 }
 .seat-cards {
   --card-w: clamp(22px, 6vw, 48px);
@@ -253,56 +236,16 @@ body {
 .seat-cards-pick {
   --card-w: clamp(30px, 9vw, 52px);
 }
-@media (max-height: 520px) and (orientation: landscape) {
-  .seat-cards {
-    --card-w: 26px;
-  }
-  .seat-cards-pick {
-    --card-w: 40px;
-  }
-}
 .mid-cards {
-  --card-w: clamp(30px, min(10vw, calc((100dvh - 320px) / 1.4)), 84px);
+  --card-w: clamp(30px, min(10vw, max(calc((100dvh - 320px) / 1.4), var(--card-floor))), 84px);
 }
 
-/*
- * Four-player tables on short landscape screens: opponents across the top, your hand (or the
- * board) on the left, the play area and messages on the right.
- */
-@media (max-height: 520px) and (orientation: landscape) {
-  .layout-table {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 260px);
-    column-gap: 16px;
-    row-gap: 6px;
-    align-items: start;
-  }
-  .layout-table > .area-seats {
-    grid-column: 1 / -1;
-  }
-  .layout-table > .area-main {
-    grid-column: 1;
-    grid-row: 2;
-  }
-  /* One wrapper per side: spanning rows here would add empty rows below the hand. */
-  .layout-table > .area-side {
-    grid-column: 2;
-    grid-row: 2;
-  }
-  .hand-cards {
-    --card-w: clamp(36px, calc((100dvh - 290px) / 1.4), 60px);
-  }
-}
-
-/* Phones held sideways: table buttons shrink a little so controls and cards share the height. */
+/* Phones held sideways: table buttons shrink a little so the controls take less height. */
 @media (max-height: 520px) and (orientation: landscape) {
   .layout-table button,
   .layout-split button {
     min-height: 2.125rem;
     padding-inline: 0.75rem;
-  }
-  .trick-compass {
-    grid-template-rows: repeat(3, calc(var(--card-h) * 0.5));
   }
 }
 
@@ -314,7 +257,7 @@ body {
 @media (min-width: 720px) {
   .concentration-grid {
     /* 13 × 4 grid: also capped by height so it fits a phone held sideways. */
-    --card-w: clamp(28px, min(calc((min(100vw, 1280px) - 140px) / 14), calc((100dvh - 250px) / 6)), 66px);
+    --card-w: clamp(28px, min(calc((min(100vw, 1280px) - 140px) / 14), max(calc((100dvh - 250px) / 6), var(--card-floor))), 66px);
     grid-template-columns: repeat(13, var(--card-w));
   }
 }

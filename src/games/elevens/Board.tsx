@@ -7,7 +7,7 @@ import type { ElevensAction, ElevensState } from './logic';
 export default function ElevensBoard({ state, dispatch }: BoardProps<ElevensState, ElevensAction>) {
   const size = { width: 'var(--card-w)', height: 'var(--card-h)' };
   return (
-    <div className="layout-split flex flex-col items-center gap-4 [--card-w:clamp(40px,min(18vw,calc((100dvh-210px)/4.4)),120px)] md:flex-row md:justify-center md:gap-10">
+    <div className="layout-split flex flex-col items-center gap-4 [--card-w:clamp(40px,min(18vw,max(calc((100dvh-210px)/4.4),var(--card-floor))),120px)] md:flex-row md:justify-center md:gap-10">
       <div className="area-main grid grid-cols-3 gap-[calc(var(--card-w)*0.12)]">
         {state.grid.map((c, i) =>
           c ? (

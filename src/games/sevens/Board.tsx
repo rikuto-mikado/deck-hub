@@ -44,7 +44,7 @@ export default function SevensBoard({ state, dispatch }: BoardProps<SevensState,
         </p>
 
         <div
-          className={`hand-cards flex flex-col items-center gap-2 rounded-xl py-2 short:[--card-w:46px] ${myTurn ? 'bg-gold/10 ring-1 ring-gold/50' : ''}`}
+          className={`hand-cards flex flex-col items-center gap-2 rounded-xl py-2 ${myTurn ? 'bg-gold/10 ring-1 ring-gold/50' : ''}`}
         >
           <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-cream/70">
             <span>

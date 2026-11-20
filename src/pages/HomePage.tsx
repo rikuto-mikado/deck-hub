@@ -1,4 +1,4 @@
-import { memo, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { href } from '@/app/router';
 import type { GameMeta } from '@/core/types/game';
 import { CATALOG, CATEGORY_LABEL, type CatalogEntry } from '@/games/registry';
@@ -21,47 +21,32 @@ const DIFFICULTY = ['', 'Easy to learn', 'Takes some thought', 'Deep'] as const;
 const players = (g: GameMeta) => (g.players === 1 ? '1 player' : `${g.players} players`);
 const playable = CATALOG.filter((g) => g.load);
 
-/** Inner padding of a gallery card; the miniature table fills the rest of its width. */
-const CARD_PAD = 10;
-
 /**
  * One exhibition plate: everything about a game in one place, with Play to deal it and Rules
  * to read the guide right here. Memoised so opening a guide or filtering never redraws the
  * other plates' miniature tables.
  */
-const GameCard = memo(function GameCard({
-  game,
-  previewWidth,
-  onRules,
-}: {
-  game: CatalogEntry;
-  previewWidth: number;
-  onRules: (id: string) => void;
-}) {
+const GameCard = memo(function GameCard({ game, onRules }: { game: CatalogEntry; onRules: (id: string) => void }) {
   return (
     <li className="collection-tile">
       <article
         aria-labelledby={`game-${game.id}`}
-        className="keep-dark @container flex h-full flex-col gap-2 rounded-xl shadow-[inset_0_0_0_1px_rgb(201_164_92/0.32),0_12px_28px_rgb(0_0_0/0.35)] transition-[box-shadow] duration-300 hover:shadow-[inset_0_0_0_1px_rgb(201_164_92/0.7),0_18px_40px_rgb(0_0_0/0.45)]"
-        style={{ padding: CARD_PAD, background: 'linear-gradient(160deg, #1a1b21 0%, #111216 100%)' }}
+        className="keep-dark flex h-full flex-col gap-2 rounded-xl p-2.5 shadow-[inset_0_0_0_1px_rgb(201_164_92/0.32),0_12px_28px_rgb(0_0_0/0.35)] transition-[box-shadow] duration-300 hover:shadow-[inset_0_0_0_1px_rgb(201_164_92/0.7),0_18px_40px_rgb(0_0_0/0.45)]"
+        style={{ background: 'linear-gradient(160deg, #1a1b21 0%, #111216 100%)' }}
       >
         <div className="truncate text-[10px] font-medium tracking-[0.24em] whitespace-nowrap text-gold uppercase">
           {CATEGORY_LABEL[game.category]}
         </div>
-        {previewWidth > 0 && (
-          <GamePreview game={game} width={previewWidth} className="rounded-md shadow-[inset_0_0_0_1px_rgb(201_164_92/0.35)]" />
-        )}
+        <GamePreview game={game} className="rounded-md outline-1 -outline-offset-1 outline-gold/35" />
         <div className="flex flex-col gap-1">
           <h3
             id={`game-${game.id}`}
-            className="m-0 truncate font-display text-lg leading-tight font-semibold text-heading @min-[200px]:text-xl @min-[260px]:text-2xl"
+            className="m-0 truncate font-display text-lg leading-tight font-semibold text-heading lg:text-xl"
           >
             {game.name}
           </h3>
-          <p className="m-0 line-clamp-2 min-h-[2lh] text-xs leading-4 text-body @min-[220px]:text-sm @min-[220px]:leading-5">
-            {game.description}
-          </p>
-          <p className="m-0 truncate text-[10px] tracking-wide text-muted @min-[220px]:text-[11px]">
+          <p className="m-0 line-clamp-2 min-h-[2lh] text-xs leading-4 text-body">{game.description}</p>
+          <p className="m-0 truncate text-[10px] tracking-wide text-muted">
             {players(game)} · {DIFFICULTY[game.difficulty]}
           </p>
         </div>
@@ -69,7 +54,7 @@ const GameCard = memo(function GameCard({
           <a
             href={href(`play/${game.id}`)}
             aria-label={`Play ${game.name}`}
-            className="inline-flex min-h-9 flex-1 items-center justify-center gap-1.5 rounded-full bg-gold px-3 text-xs font-semibold text-ink no-underline transition hover:bg-gold-bright focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-bright @min-[220px]:min-h-10 @min-[220px]:text-sm"
+            className="inline-flex min-h-9 flex-1 items-center justify-center gap-1.5 rounded-full bg-gold px-3 text-xs font-semibold text-ink no-underline transition hover:bg-gold-bright focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-bright"
           >
             Play <IconPlay />
           </a>
@@ -78,34 +63,15 @@ const GameCard = memo(function GameCard({
             onClick={() => onRules(game.id)}
             aria-haspopup="dialog"
             aria-label={`Rules for ${game.name}`}
-            className="inline-flex min-h-9 min-w-9 items-center justify-center gap-1.5 rounded-full border-0 bg-transparent px-2.5 text-xs font-medium text-gold-bright ring-1 ring-gold/45 transition ring-inset hover:bg-gold/12 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-bright @min-[220px]:min-h-10 @min-[220px]:px-4 @min-[220px]:text-sm"
+            className="inline-flex min-h-9 min-w-9 items-center justify-center gap-1.5 rounded-full border-0 bg-transparent px-2.5 text-xs font-medium text-gold-bright ring-1 ring-gold/45 transition ring-inset hover:bg-gold/12 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-bright"
           >
-            <IconBook /> <span className="hidden @min-[180px]:inline">Rules</span>
+            <IconBook /> <span className="hidden lg:inline">Rules</span>
           </button>
         </div>
       </article>
     </li>
   );
 });
-
-/** Width of one gallery column, so every miniature table scales to fill its card exactly. */
-function useColumnWidth() {
-  const ref = useRef<HTMLUListElement>(null);
-  const [width, setWidth] = useState(0);
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const measure = () => {
-      const first = Number.parseFloat(getComputedStyle(el).gridTemplateColumns);
-      if (Number.isFinite(first)) setWidth(Math.floor(first));
-    };
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-  return [ref, width] as const;
-}
 
 export function HomePage() {
   const [filter, setFilter] = useState<Filter>('all');
@@ -119,8 +85,6 @@ export function HomePage() {
     setGuideGame(g);
     setGuideOpen(true);
   }, []);
-  const [grid, columnWidth] = useColumnWidth();
-  const previewWidth = Math.max(0, columnWidth - CARD_PAD * 2);
   const games = useMemo(() => playable.filter((g) => filter === 'all' || g.category === filter), [filter]);
 
   return (
@@ -160,12 +124,9 @@ export function HomePage() {
             ))}
           </div>
         </div>
-        <ul
-          ref={grid}
-          className="m-0 grid list-none grid-cols-2 gap-3 p-0 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 lg:gap-4 2xl:grid-cols-6 short:grid-cols-5 short:gap-2.5"
-        >
+        <ul className="m-0 grid list-none grid-cols-2 gap-3 p-0 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 lg:gap-4 2xl:grid-cols-6 short:grid-cols-5 short:gap-2.5">
           {games.map((g) => (
-            <GameCard key={g.id} game={g} previewWidth={previewWidth} onRules={openGuide} />
+            <GameCard key={g.id} game={g} onRules={openGuide} />
           ))}
         </ul>
       </section>

@@ -65,7 +65,7 @@ export default function CastleBoard({ state, dispatch }: BoardProps<CastleState,
   };
   return (
     <DragProvider onDrop={onDrop}>
-      <div className="flex justify-center gap-[var(--gap)] [--card-w:clamp(26px,min(calc((min(100vw,1280px)-120px)/13),calc((100dvh-200px)/6.2)),80px)]">
+      <div className="flex justify-center gap-[var(--gap)] [--card-w:clamp(26px,min(calc((min(100vw,1280px)-120px)/13),max(calc((100dvh-200px)/6.2),var(--card-floor))),80px)]">
         <div className="flex flex-col gap-[calc(var(--card-w)*0.1)]">
           {[0, 1, 2, 3].map((r) => (
             <Wing key={r} state={state} row={r} side="left" onTap={() => tap(r)} />

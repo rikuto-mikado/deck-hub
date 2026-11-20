@@ -72,7 +72,7 @@ export function TrickTable({
       <div className="area-side flex flex-col items-center gap-2">
         <div className="mid-cards flex items-center gap-3">
           {showTrick && (
-            <div className="trick-compass grid grid-cols-[repeat(3,var(--card-w))] grid-rows-[repeat(3,calc(var(--card-h)*0.62))] gap-x-1">
+            <div className="trick-compass grid grid-cols-[repeat(3,var(--card-w))] grid-rows-[repeat(3,calc(var(--card-h)*0.62))] gap-x-2 gap-y-1.5">
               {trick.map(({ by, card }) => (
                 <div key={card.id} className={`${AREA[by % 4]} flex items-center justify-center`}>
                   <Card card={card} style={size} />

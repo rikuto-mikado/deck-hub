@@ -1,98 +1,140 @@
 import { memo } from 'react';
-import type { Rank, StandardCard, Suit, CardId } from '@/core/types/card';
 import type { GameMeta } from '@/core/types/game';
 import { toneOf } from '@/games/registry';
-import { CardBack } from '@/ui/card/CardBack';
-import { CardFace } from '@/ui/card/CardFace';
 import { PREVIEW_H, PREVIEW_W, previewItems, type PreviewItem } from './previews';
 
-const SUIT_OF: Record<string, Suit> = { '♠': 'spades', '♥': 'hearts', '♦': 'diamonds', '♣': 'clubs' };
-const RANK_OF: Record<string, Rank> = { A: 1, J: 11, Q: 12, K: 13 };
+const RED = 'var(--color-card-red)';
+const BLACK = 'var(--color-card-black)';
+const GILT = 'var(--color-card-gilt)';
 
-/** Turns a preview label like "10♣" into the same card model the game uses. */
-function cardOf(label: string): StandardCard {
-  const suit = SUIT_OF[label.slice(-1)] ?? 'spades';
-  const r = label.slice(0, -1);
-  const rank = (RANK_OF[r] ?? Number(r)) as Rank;
-  return { kind: 'standard', id: `preview-${label}` as CardId, suit, rank, faceUp: true };
+/** Where an item sits: its corner, nudged by `lift` and turned about its centre by `rotate`. */
+function placement(it: PreviewItem): string {
+  const move = `translate(${it.x} ${it.y + (it.lift ?? 0)})`;
+  return it.rotate ? `${move} rotate(${it.rotate} ${it.w / 2} ${it.h / 2})` : move;
 }
 
-function place(it: PreviewItem): React.CSSProperties {
-  return {
-    position: 'absolute',
-    left: it.x,
-    top: it.y,
-    width: it.w,
-    height: it.h,
-    transform: it.lift || it.rotate ? `translateY(${it.lift ?? 0}px) rotate(${it.rotate ?? 0}deg)` : undefined,
-  };
+/** A miniature face: ivory paper, the rank in the corner and one suit pip in the middle. */
+function Face({ it }: { it: PreviewItem }) {
+  const label = it.label ?? 'A♠';
+  const suit = label.slice(-1);
+  const rank = label.slice(0, -1);
+  const ink = it.red ? RED : BLACK;
+  const r = it.w * 0.1;
+  return (
+    <g transform={placement(it)}>
+      <rect y={0.8} width={it.w} height={it.h} rx={r} fill="rgb(0 0 0 / 0.35)" />
+      <rect
+        width={it.w}
+        height={it.h}
+        rx={r}
+        fill="var(--color-card-face)"
+        stroke={it.ring ? 'var(--color-gold-bright)' : 'var(--color-card-edge)'}
+        strokeWidth={it.ring ? 1.4 : 0.4}
+      />
+      <text
+        x={it.w * 0.1}
+        y={it.w * 0.36}
+        fontSize={it.w * (rank.length > 1 ? 0.3 : 0.36)}
+        fontWeight={700}
+        fontFamily="var(--font-card)"
+        fill={ink}
+      >
+        {rank}
+      </text>
+      <text x={it.w / 2} y={it.h * 0.66} fontSize={it.w * 0.5} textAnchor="middle" fill={ink}>
+        {suit}
+      </text>
+    </g>
+  );
+}
+
+/** A miniature back: navy with a gilt inner border and a small diamond. */
+function Back({ it }: { it: PreviewItem }) {
+  const inset = Math.max(1, it.w * 0.12);
+  const cx = it.w / 2;
+  const cy = it.h / 2;
+  const d = it.w * 0.18;
+  return (
+    <g transform={placement(it)}>
+      <rect y={0.8} width={it.w} height={it.h} rx={it.w * 0.1} fill="rgb(0 0 0 / 0.35)" />
+      <rect width={it.w} height={it.h} rx={it.w * 0.1} fill="var(--color-card-back)" />
+      <rect
+        x={inset}
+        y={inset}
+        width={it.w - inset * 2}
+        height={it.h - inset * 2}
+        rx={it.w * 0.05}
+        fill="none"
+        stroke={GILT}
+        strokeOpacity={0.55}
+        strokeWidth={0.5}
+      />
+      <path
+        d={`M${cx} ${cy - d}L${cx + d * 0.75} ${cy}L${cx} ${cy + d}L${cx - d * 0.75} ${cy}Z`}
+        fill={GILT}
+        fillOpacity={0.85}
+      />
+    </g>
+  );
 }
 
 /** Table furniture that isn't a card: empty slots, bars (paytables, health) and chips. */
-function furnitureStyle(it: PreviewItem): React.CSSProperties {
+function Furniture({ it }: { it: PreviewItem }) {
   switch (it.kind) {
     case 'slot':
-      return {
-        borderRadius: Math.max(2, Math.round(it.w / 8)),
-        background: 'rgb(0 0 0 / 0.18)',
-        boxShadow: 'inset 0 0 0 1px rgb(201 164 92 / 0.28)',
-      };
+      return (
+        <rect
+          x={it.x}
+          y={it.y}
+          width={it.w}
+          height={it.h}
+          rx={Math.max(2, it.w / 8)}
+          fill="rgb(0 0 0 / 0.18)"
+          stroke="rgb(201 164 92 / 0.28)"
+          strokeWidth={0.6}
+        />
+      );
     case 'bar':
-      return { borderRadius: it.h / 2, background: it.fill };
-    case 'chip':
-      return {
-        borderRadius: it.h / 2,
-        background: it.fill,
-        boxShadow: `inset 0 0 0 2px ${it.fill}, inset 0 0 0 3px rgb(243 236 220 / 0.8)`,
-      };
+      return <rect x={it.x} y={it.y} width={it.w} height={it.h} rx={it.h / 2} fill={it.fill} />;
+    case 'chip': {
+      const r = it.w / 2;
+      return (
+        <g>
+          <circle cx={it.x + r} cy={it.y + r} r={r} fill={it.fill} />
+          <circle cx={it.x + r} cy={it.y + r} r={r - 2.5} fill="none" stroke="rgb(243 236 220 / 0.8)" strokeWidth={1} />
+        </g>
+      );
+    }
     default:
-      return {};
+      return null;
   }
 }
 
 /**
- * A tiny rendering of the game's table. Cards are drawn with the very same CardFace and
- * CardBack the game uses, so the picker always matches what you'll play with.
- * `width` scales the 232×150 drawing.
+ * A tiny rendering of the game's table as one flat SVG: simple faces, backs and furniture
+ * instead of the full card artwork, so a gallery of 54 stays light. It fills its container's
+ * width at the 232×150 aspect ratio.
  */
 export const GamePreview = memo(function GamePreview({
   game,
-  width = PREVIEW_W,
   className = '',
 }: {
   game: Pick<GameMeta, 'id' | 'category'>;
-  width?: number;
   className?: string;
 }) {
-  const scale = width / PREVIEW_W;
-  const items = previewItems(game.id);
   return (
-    <div
-      className={`tone-${toneOf(game)} relative overflow-hidden ${className}`}
-      style={{ width, height: PREVIEW_H * scale }}
-      aria-hidden
-    >
-      <div
-        style={{
-          width: PREVIEW_W,
-          height: PREVIEW_H,
-          transform: `scale(${scale})`,
-          transformOrigin: '0 0',
-          position: 'relative',
-        }}
-      >
-        {items.map((it, i) =>
-          it.kind === 'face' || it.kind === 'back' ? (
-            // `card-preview`, not `card`: previews always show the full design. Only cards in play switch
-            // to the large-index face when small, because there they have to be read, not admired.
-            <span key={i} className={`card-preview ${it.ring ? 'card-selected' : ''}`} style={place(it)}>
-              {it.kind === 'face' ? <CardFace card={cardOf(it.label ?? 'A♠')} /> : <CardBack />}
-            </span>
+    <div className={`tone-${toneOf(game)} aspect-[232/150] w-full overflow-hidden ${className}`} aria-hidden>
+      <svg viewBox={`0 0 ${PREVIEW_W} ${PREVIEW_H}`} className="block h-auto w-full">
+        {previewItems(game.id).map((it, i) =>
+          it.kind === 'face' ? (
+            <Face key={i} it={it} />
+          ) : it.kind === 'back' ? (
+            <Back key={i} it={it} />
           ) : (
-            <span key={i} style={{ ...place(it), ...furnitureStyle(it) }} />
+            <Furniture key={i} it={it} />
           ),
         )}
-      </div>
+      </svg>
     </div>
   );
 });

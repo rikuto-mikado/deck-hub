@@ -112,8 +112,7 @@ export function GuideDialog({ game, open, onClose }: { game: GameMeta; open: boo
               </div>
               <GamePreview
                 game={game}
-                width={232}
-                className="hidden shrink-0 rounded-xl shadow-[0_0_0_1px_rgb(201_164_92/0.4),0_16px_32px_rgb(0_0_0/0.4)] sm:block"
+                className="hidden w-[232px]! shrink-0 rounded-xl shadow-[0_0_0_1px_rgb(201_164_92/0.4),0_16px_32px_rgb(0_0_0/0.4)] sm:block"
               />
               <IconButton ref={closeRef} label="Close" onClick={onClose} className="absolute top-3 right-3 sm:top-4 sm:right-4">
                 <svg

@@ -36,10 +36,7 @@ for (const id of GAMES) {
     // Measure the real board, not the "Shuffling…" placeholder shown while its chunk loads.
     if (id !== 'video-poker' && id !== 'baccarat' && id !== 'red-dog')
       await expect(page.locator('[data-card-id]').first()).toBeVisible();
+    // Short screens may scroll vertically (cards keep a readable size); they never scroll sideways.
     await noSideScroll(page);
-    if (info.project.name === 'phone-landscape') {
-      const bottom = await page.locator('.table-surface').evaluate((el) => el.getBoundingClientRect().bottom);
-      expect(bottom, 'table should fit a phone held sideways').toBeLessThanOrEqual(390);
-    }
   });
 }

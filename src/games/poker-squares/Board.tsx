@@ -26,7 +26,7 @@ export default function PokerSquaresBoard({ state, dispatch }: BoardProps<PokerS
       style={columnsStyle(8, 96, 6.4)}
       className="layout-split flex flex-col items-center gap-4 md:flex-row md:justify-center md:gap-10"
     >
-      <div className="area-main grid grid-cols-[repeat(5,var(--card-w))_2rem] gap-[3px] [--card-w:clamp(28px,min(calc((min(100vw,1280px)-180px)/8),calc((100dvh-230px)/7.6)),96px)]">
+      <div className="area-main grid grid-cols-[repeat(5,var(--card-w))_2rem] gap-[3px] [--card-w:clamp(28px,min(calc((min(100vw,1280px)-180px)/8),max(calc((100dvh-230px)/7.6),var(--card-floor))),96px)]">
         <Score s={state} line={LINES[11]!} className="col-start-6 row-start-1 -rotate-45 opacity-80" />
         {Array.from({ length: 5 }, (_, r) => (
           <div key={r} className="contents">

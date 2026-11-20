@@ -34,7 +34,7 @@ export default function CribbageBoard({ state, dispatch }: BoardProps<CribbageSt
       return n;
     });
   return (
-    <div className="layout-table flex flex-col gap-3 [--card-w:clamp(38px,min(10vw,calc((100dvh-310px)/2.9)),92px)]">
+    <div className="layout-table flex flex-col gap-3 [--card-w:clamp(38px,min(10vw,max(calc((100dvh-310px)/2.9),var(--card-floor))),92px)]">
       <div className="area-seats flex flex-wrap items-center justify-center gap-4">
         <div className="flex flex-col gap-1">
           <Track value={state.scores[HUMAN]} target={state.target} label="You" />

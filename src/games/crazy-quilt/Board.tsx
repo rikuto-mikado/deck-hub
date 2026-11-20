@@ -16,7 +16,7 @@ export default function CrazyQuiltBoard({ state, dispatch }: BoardProps<CrazyQui
   };
   return (
     <DragProvider onDrop={onDrop}>
-      <div className="flex items-center justify-center gap-4 [--card-w:clamp(20px,min(calc((min(100vw,1280px)-260px)/12.5),calc((100dvh-200px)/10)),62px)]">
+      <div className="flex items-center justify-center gap-4 [--card-w:clamp(20px,min(calc((min(100vw,1280px)-260px)/12.5),max(calc((100dvh-200px)/10),var(--card-floor))),62px)]">
         <div className="grid grid-cols-2 gap-[3px]">
           {state.foundations.map((f, i) => (
             <Pile key={i} id={`f${i}`} cards={f} label={`${i < 4 ? 'Up' : 'Down'} foundation ${(i % 4) + 1}`} />

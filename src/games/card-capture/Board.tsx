@@ -19,7 +19,7 @@ export default function CardCaptureBoard({ state, dispatch }: BoardProps<Capture
       return n;
     });
   return (
-    <div className="layout-table flex flex-col gap-3 [--card-w:clamp(40px,min(12vw,calc((100dvh-290px)/2.9)),104px)]">
+    <div className="layout-table flex flex-col gap-3 [--card-w:clamp(40px,min(12vw,max(calc((100dvh-290px)/2.9),var(--card-floor))),104px)]">
       <div className="area-seats flex flex-wrap items-end justify-center gap-[var(--gap)]">
         <Pile cards={state.enemies} label={`Enemy deck, ${state.enemies.length} left`} emptyLabel="" />
         {state.dungeon.map((d, i) => (

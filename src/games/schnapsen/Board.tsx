@@ -21,7 +21,7 @@ export default function SchnapsenBoard({ state, dispatch }: BoardProps<Schnapsen
   const playable = new Set<string>(myTurn ? legal(state, HUMAN).map((c) => c.id) : []);
   const myMarriages = marriages(state, HUMAN);
   return (
-    <div className="layout-table flex flex-col gap-3 [--card-w:clamp(40px,min(11vw,calc((100dvh-300px)/2.9)),100px)]">
+    <div className="layout-table flex flex-col gap-3 [--card-w:clamp(40px,min(11vw,max(calc((100dvh-300px)/2.9),var(--card-floor))),100px)]">
       <div className="area-seats flex flex-col items-center gap-1">
         <div className="flex flex-wrap items-center justify-center gap-3 text-xs">
           <Badge>Trump {SUIT_SYMBOL[state.trump]}</Badge>

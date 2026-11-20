@@ -14,7 +14,7 @@ export default function AccordionBoard({ state, dispatch }: BoardProps<Accordion
   const targets = new Set(state.selected !== null ? targetsOf(state, state.selected) : []);
   return (
     <DragProvider onDrop={onDrop}>
-      <div className="flex flex-col items-center gap-2 [--card-w:clamp(26px,min(calc((min(100vw,1280px)-120px)/13.6),calc((100dvh-210px)/6.2)),80px)]">
+      <div className="flex flex-col items-center gap-2 [--card-w:clamp(26px,min(calc((min(100vw,1280px)-120px)/13.6),max(calc((100dvh-210px)/6.2),var(--card-floor))),80px)]">
         <div className="grid grid-cols-[repeat(13,var(--card-w))] gap-x-[3px] gap-y-[calc(var(--card-w)*0.12)]">
           {state.piles.map((p, i) => {
             const top = p.at(-1)!;

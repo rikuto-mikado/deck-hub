@@ -22,7 +22,7 @@ export default function GridcannonBoard({ state, dispatch }: BoardProps<Gridcann
     else dispatch({ type: 'place', cell });
   };
   return (
-    <div className="layout-split flex flex-col items-center gap-3 [--card-w:clamp(28px,min(10vw,calc((100dvh-200px)/7.2)),78px)] md:flex-row md:justify-center md:gap-10">
+    <div className="layout-split flex flex-col items-center gap-3 [--card-w:clamp(28px,min(10vw,max(calc((100dvh-200px)/7.2),var(--card-floor))),78px)] md:flex-row md:justify-center md:gap-10">
       <div className="area-main grid grid-cols-[repeat(5,var(--card-w))] grid-rows-[repeat(5,var(--card-h))] gap-[calc(var(--card-w)*0.08)]">
         {state.royals.map((r, i) => {
           const [row, col] = SLOT_POS[i]!;

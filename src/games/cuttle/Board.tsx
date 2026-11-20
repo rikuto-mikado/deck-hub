@@ -99,7 +99,7 @@ export default function CuttleBoard({ state, dispatch }: BoardProps<CuttleState,
   const opp = state.hands[CPU].map((c) => (hasGlasses(state, HUMAN) ? { ...c, faceUp: true } : c));
   const pend = state.pending;
   return (
-    <div className="layout-table flex flex-col gap-2 [--card-w:clamp(30px,min(7vw,calc((100dvh-330px)/4.2)),72px)]">
+    <div className="layout-table flex flex-col gap-2 [--card-w:clamp(30px,min(7vw,max(calc((100dvh-330px)/4.2),var(--card-floor))),72px)]">
       <div className="area-seats flex flex-col items-center gap-1">
         <div className="flex items-center gap-3">
           <Stat label={state.seat.name} value={`${pointsOf(state, CPU)}/${goalOf(state, CPU)}`} />
@@ -193,7 +193,6 @@ export default function CuttleBoard({ state, dispatch }: BoardProps<CuttleState,
       <div className="area-main flex flex-col gap-1">
         {area(HUMAN)}
         <HandArea
-          className="short:[--card-w:44px]"
           active={main || myChoice}
           prompt={
             <>

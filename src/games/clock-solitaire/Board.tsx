@@ -16,7 +16,7 @@ export default function ClockBoard({ state, dispatch }: BoardProps<ClockState, C
   return (
     <div className="flex flex-col items-center gap-2">
       <div
-        className="relative aspect-[1.7] w-full max-w-[min(100%,calc((100dvh-190px)*1.7))] [--card-w:clamp(28px,min(7.4vw,calc((100dvh-190px)/6.4)),84px)]"
+        className="relative aspect-[1.7] w-full max-w-[min(100%,max(calc((100dvh-190px)*1.7),calc(var(--card-floor)*8)))] [--card-w:clamp(28px,min(7.4vw,max(calc((100dvh-190px)/6.4),var(--card-floor))),84px)]"
         role="group"
         aria-label="Clock face"
       >

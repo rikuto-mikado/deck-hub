@@ -14,7 +14,7 @@ export default function GinBoard({ state, dispatch }: BoardProps<GinState, GinAc
   const dwAfter = picked ? deadwoodAfter(hand, picked) : null;
   const r = state.result;
   return (
-    <div className="layout-table flex flex-col gap-3 [--card-w:clamp(38px,min(9vw,calc((100dvh-300px)/2.9)),92px)]">
+    <div className="layout-table flex flex-col gap-3 [--card-w:clamp(38px,min(9vw,max(calc((100dvh-300px)/2.9),var(--card-floor))),92px)]">
       <div className="area-seats flex flex-col items-center gap-1">
         <Stat label={state.seat.name} value={state.scores[CPU]} />
         <div className="seat-cards">

@@ -7,13 +7,14 @@ export type TableTone = 'navy' | 'ember' | 'wine' | 'forest';
 const CHROME_H = '170px';
 
 /**
- * Card width that fits `columns` cards side by side, and — when `tall` is given — also keeps
- * a layout `tall` card-heights high inside the viewport. The height cap is what makes a phone
- * held sideways (≈390px tall) show the whole table without scrolling.
+ * Card width that fits `columns` cards side by side. With `tall`, a layout `tall` card-heights
+ * high is also kept inside the viewport on roomy screens, but height never pushes a card below
+ * `--card-floor`: short screens (phones held sideways, small tablets) scroll instead of
+ * crushing the cards. Only the available width can make cards smaller than that.
  */
 export function columnsStyle(columns: number, max = 118, tall?: number): CSSProperties {
   const byWidth = `calc((min(100vw, 1280px) - 72px - ${columns - 1} * var(--gap)) / ${columns})`;
-  const byHeight = tall ? `calc((100dvh - ${CHROME_H}) / ${(tall * 1.4).toFixed(2)})` : null;
+  const byHeight = tall ? `max(calc((100dvh - ${CHROME_H}) / ${(tall * 1.4).toFixed(2)}), var(--card-floor))` : null;
   return {
     '--card-w': `clamp(24px, ${byHeight ? `min(${byWidth}, ${byHeight})` : byWidth}, ${max}px)`,
   } as CSSProperties;

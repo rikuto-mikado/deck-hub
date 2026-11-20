@@ -10,7 +10,7 @@ import { HUMAN, gridScore, type SixGolfAction, type SixGolfState } from './logic
 function Grid({ state, p, onCell, small }: { state: SixGolfState; p: number; onCell?: (i: number) => void; small?: boolean }) {
   const size = { width: 'var(--card-w)', height: 'var(--card-h)' };
   return (
-    <div className={`grid grid-cols-3 gap-[3px] ${small ? 'seat-cards' : 'short:[--card-w:40px]'}`}>
+    <div className={`grid grid-cols-3 gap-[3px] ${small ? 'seat-cards' : ''}`}>
       {state.grids[p]!.map((c, i) => (
         <Card key={c.id} card={c} style={size} onClick={onCell ? () => onCell(i) : undefined} />
       ))}

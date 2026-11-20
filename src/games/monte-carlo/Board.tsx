@@ -8,7 +8,7 @@ import { canConsolidate, type MonteCarloAction, type MonteCarloState } from './l
 export default function MonteCarloBoard({ state, dispatch }: BoardProps<MonteCarloState, MonteCarloAction>) {
   const size = { width: 'var(--card-w)', height: 'var(--card-h)' };
   return (
-    <div className="layout-split flex flex-col items-center gap-4 [--card-w:clamp(30px,min(13vw,calc((100dvh-200px)/7.4)),92px)] md:flex-row md:justify-center md:gap-10">
+    <div className="layout-split flex flex-col items-center gap-4 [--card-w:clamp(30px,min(13vw,max(calc((100dvh-200px)/7.4),var(--card-floor))),92px)] md:flex-row md:justify-center md:gap-10">
       <div className="area-main grid grid-cols-[repeat(5,var(--card-w))] gap-[calc(var(--card-w)*0.08)]">
         {state.grid.map((c, i) =>
           c ? (
